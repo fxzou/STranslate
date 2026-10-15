@@ -719,6 +719,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void SwapLanguage()
     {
+        // 简化语言模式下语种由识别结果推导，交换无意义
+        if (Settings.SimpleLanguageMode)
+            return;
+
         if (string.IsNullOrWhiteSpace(InputText) ||
             (Settings.SourceLang == Settings.TargetLang && Settings.SourceLang == LangEnum.Auto))
             return;

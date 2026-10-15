@@ -64,6 +64,10 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">相同語言目標</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">當最終來源語言與目標語言完全相同時，目標語言改用此語言。選擇「自動」表示不取代，此時不翻譯並直接顯示原文。</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">自動（不取代，顯示原文）</sys:String>
+    <sys:String x:Key="General_SimpleLanguageMode">簡化語言模式</sys:String>
+    <sys:String x:Key="General_SimpleLanguageModeDescription">打開後主介面只保留一個語言選擇方塊：來源語言仍自動辨識，辨識為中文時翻譯成下方指定的語言，辨識為其它語言時翻譯成簡體中文。</sys:String>
+    <sys:String x:Key="General_SimpleLanguageTargetLanguage">中文翻譯目標語言</sys:String>
+    <sys:String x:Key="General_SimpleLanguageTargetLanguageDescription">簡化語言模式下，來源語言辨識為中文時使用的目標語言。</sys:String>
     <sys:String x:Key="General_HttpTimeout">逾時時間</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">網路請求的逾時時間，單位：秒。</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">文字輸出使用剪貼簿</sys:String>

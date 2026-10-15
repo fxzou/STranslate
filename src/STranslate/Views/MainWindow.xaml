@@ -165,39 +165,56 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
+                    <!--  常规模式：源语言 + 交换 + 目标语言  -->
+                    <Grid Visibility="{Binding Settings.SimpleLanguageMode, Converter={cnvt:BoolToVisibilityInverseConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            DisplayMemberPath="Display"
+                            ItemsSource="{Binding DataProvider.LangEnums}"
+                            SelectedValue="{Binding Settings.SourceLang}"
+                            SelectedValuePath="Value" />
+
+                        <Button
+                            Grid.Column="1"
+                            Margin="2,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Stretch"
+                            Command="{Binding SwapLanguageCommand}"
+                            ToolTip="{DynamicResource SwapLanguage}">
+                            <ui:FontIcon FontSize="{DynamicResource STControlFontSize16}" Icon="{x:Static ui:FluentSystemIcons.ArrowSwap_20_Regular}" />
+                        </Button>
+
+                        <ComboBox
+                            Grid.Column="2"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            DisplayMemberPath="Display"
+                            ItemsSource="{Binding DataProvider.LangEnums}"
+                            SelectedValue="{Binding Settings.TargetLang}"
+                            SelectedValuePath="Value" />
+                    </Grid>
+
+                    <!--  简化模式：只保留一个语言选择框，用于指定中文要翻译成的目标语言  -->
                     <ComboBox
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
                         DisplayMemberPath="Display"
-                        ItemsSource="{Binding DataProvider.LangEnums}"
-                        SelectedValue="{Binding Settings.SourceLang}"
-                        SelectedValuePath="Value" />
-
-                    <Button
-                        Grid.Column="1"
-                        Margin="2,0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Stretch"
-                        Command="{Binding SwapLanguageCommand}"
-                        ToolTip="{DynamicResource SwapLanguage}">
-                        <ui:FontIcon FontSize="{DynamicResource STControlFontSize16}" Icon="{x:Static ui:FluentSystemIcons.ArrowSwap_20_Regular}" />
-                    </Button>
-
-                    <ComboBox
-                        Grid.Column="2"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        DisplayMemberPath="Display"
-                        ItemsSource="{Binding DataProvider.LangEnums}"
-                        SelectedValue="{Binding Settings.TargetLang}"
-                        SelectedValuePath="Value" />
+                        ItemsSource="{Binding DataProvider.SimpleLanguageTargetLangs}"
+                        SelectedValue="{Binding Settings.SimpleLanguageTargetLang}"
+                        SelectedValuePath="Value"
+                        Visibility="{Binding Settings.SimpleLanguageMode, Converter={cnvt:BoolToVisibilityConverter}}" />
 
                     <ListBox
-                        Grid.Column="3"
+                        Grid.Column="1"
                         Margin="2,0,0,0"
                         Background="Transparent"
                         ItemsSource="{Binding TranslateService.Services}">

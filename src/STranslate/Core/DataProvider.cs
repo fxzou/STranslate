@@ -24,6 +24,7 @@ public class DataProvider
     {
         DropdownDataGeneric<LangEnum>.UpdateLabels(LangEnums);
         DropdownDataGeneric<LangEnum>.UpdateLabels(SameLanguageTargetLangs);
+        DropdownDataGeneric<LangEnum>.UpdateLabels(SimpleLanguageTargetLangs);
         DropdownDataGeneric<ProxyType>.UpdateLabels(ProxyTypes);
         DropdownDataGeneric<LanguageDetectorType>.UpdateLabels(LanguageDetectors);
         DropdownDataGeneric<ElementTheme>.UpdateLabels(ColorSchemes);
@@ -71,6 +72,18 @@ public class DataProvider
 
                 return x;
             })
+            .ToList();
+
+    public class SimpleLanguageTargetLangData : DropdownDataGeneric<LangEnum> { }
+
+    /// <summary>
+    /// 简化语言模式下「中文翻译成的目标语种」选项。
+    /// 必须是具体语种，因此不包含 <see cref="LangEnum.Auto"/>。
+    /// </summary>
+    public List<SimpleLanguageTargetLangData> SimpleLanguageTargetLangs { get; } =
+        DropdownDataGeneric<LangEnum>
+            .GetValues<SimpleLanguageTargetLangData>("LangEnum")
+            .Where(x => x.Value != LangEnum.Auto)
             .ToList();
 
     #endregion
