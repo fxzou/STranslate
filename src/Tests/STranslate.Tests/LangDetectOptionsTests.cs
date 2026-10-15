@@ -114,9 +114,99 @@ public class LangDetectOptionsTests
         Assert.Equal(LangEnum.English, options.ResolveTargetLanguage(LangEnum.English, LangEnum.English));
     }
 
+    [Fact]
+    public void Simple_Mode_Defaults_To_Disabled_And_English()
+    {
+        var options = CreateOptions();
+
+        Assert.False(options.SimpleLanguageMode);
+        Assert.Equal(LangEnum.English, options.SimpleLanguageTargetLang);
+    }
+
+    [Fact]
+    public void Simple_Mode_Translates_Chinese_Into_Configured_Language()
+    {
+        var options = CreateSimpleOptions(LangEnum.Japanese);
+
+        Assert.Equal(LangEnum.Japanese, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Translates_Chinese_Traditional_Into_Configured_Language()
+    {
+        var options = CreateSimpleOptions(LangEnum.Japanese);
+
+        Assert.Equal(LangEnum.Japanese, options.ResolveTargetLanguage(LangEnum.ChineseTraditional, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Translates_Cantonese_Into_Configured_Language()
+    {
+        var options = CreateSimpleOptions(LangEnum.Japanese);
+
+        Assert.Equal(LangEnum.Japanese, options.ResolveTargetLanguage(LangEnum.Cantonese, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Translates_Other_Language_Into_Chinese_Simplified()
+    {
+        var options = CreateSimpleOptions(LangEnum.Japanese);
+
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.Japanese, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Ignores_Configured_Target_Language()
+    {
+        // 简化模式下目标语种完全由模式决定，调用方的目标语种配置不再参与
+        var options = CreateSimpleOptions(LangEnum.Japanese);
+
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.English, LangEnum.French));
+        Assert.Equal(LangEnum.Japanese, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.French));
+    }
+
+    [Fact]
+    public void Simple_Mode_Ignores_First_And_Second_Language_Settings()
+    {
+        // 第一/第二语言在本模式下不参与推导
+        var options = new LangDetectOptions(LanguageDetectorType.Local, 0.8, LangEnum.English, LangEnum.English, LangEnum.Korean)
+        {
+            SimpleLanguageMode = true,
+            SimpleLanguageTargetLang = LangEnum.Japanese,
+        };
+
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.English, LangEnum.Auto));
+        Assert.Equal(LangEnum.Japanese, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Chinese_Target_Equal_To_Source_Keeps_Source()
+    {
+        // 中文目标恰好也是中文时源与目标相同，由调用方按原文直出
+        var options = CreateSimpleOptions(LangEnum.ChineseSimplified);
+
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.Auto));
+    }
+
+    [Fact]
+    public void Simple_Mode_Disabled_Keeps_Normal_Resolution()
+    {
+        var options = CreateSimpleOptions(LangEnum.Japanese, enabled: false);
+
+        Assert.Equal(LangEnum.English, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.Auto));
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.Japanese, LangEnum.Auto));
+    }
+
     private static LangDetectOptions CreateOptions(LangEnum? sameLanguageTarget = null)
         => new(LanguageDetectorType.Local, 0.8, LangEnum.English, LangEnum.ChineseSimplified, LangEnum.English)
         {
             SameLanguageTargetLang = sameLanguageTarget,
+        };
+
+    private static LangDetectOptions CreateSimpleOptions(LangEnum simpleTarget, bool enabled = true)
+        => new(LanguageDetectorType.Local, 0.8, LangEnum.English, LangEnum.ChineseSimplified, LangEnum.English)
+        {
+            SimpleLanguageMode = enabled,
+            SimpleLanguageTargetLang = simpleTarget,
         };
 }

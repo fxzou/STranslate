@@ -64,6 +64,10 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">Цільова мова при збігу</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">Якщо підсумкова мова джерела та цільова мова повністю збігаються, використовувати цю цільову мову. «Авто» — не замінювати: текст показується без перекладу.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Авто (без заміни, показати оригінал)</sys:String>
+    <sys:String x:Key="General_SimpleLanguageMode">Спрощений мовний режим</sys:String>
+    <sys:String x:Key="General_SimpleLanguageModeDescription">У разі ввімкнення в головному вікні залишається один вибір мови: мова джерела й далі визначається автоматично; текст, розпізнаний як китайська, перекладається на вказану нижче мову, інші мови — на спрощену китайську.</sys:String>
+    <sys:String x:Key="General_SimpleLanguageTargetLanguage">Цільова мова для китайської</sys:String>
+    <sys:String x:Key="General_SimpleLanguageTargetLanguageDescription">Цільова мова, що використовується у спрощеному режимі, коли мову джерела визначено як китайську.</sys:String>
     <sys:String x:Key="General_HttpTimeout">Тайм-аут</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">Тайм-аут мережевого запиту в секундах.</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">Виводити текст через буфер обміну</sys:String>

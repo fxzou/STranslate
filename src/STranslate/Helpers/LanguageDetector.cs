@@ -29,6 +29,22 @@ public sealed record LangDetectOptions(
     public LangEnum? SameLanguageTargetLang { get; init; }
 
     /// <summary>
+    ///     是否启用简化语言模式。默认 <see langword="false"/>，图片翻译等链路不设置即保持原有行为。
+    /// </summary>
+    public bool SimpleLanguageMode { get; init; }
+
+    /// <summary>
+    ///     简化语言模式下中文要翻译成的目标语种。
+    /// </summary>
+    public LangEnum SimpleLanguageTargetLang { get; init; } = LangEnum.English;
+
+    /// <summary>
+    ///     判断语种是否属于中文，用于简化语言模式区分「中文」与「其它语言」。
+    /// </summary>
+    private static bool IsChinese(LangEnum language) =>
+        language is LangEnum.ChineseSimplified or LangEnum.ChineseTraditional or LangEnum.Cantonese;
+
+    /// <summary>
     ///     根据最终源语种与调用方目标语种配置解析应使用的目标语种。
     /// </summary>
     /// <param name="source">实际参与翻译的源语种。</param>
@@ -36,6 +52,11 @@ public sealed record LangDetectOptions(
     /// <returns>当前翻译链路应使用的目标语种。</returns>
     public LangEnum ResolveTargetLanguage(LangEnum source, LangEnum configuredTarget)
     {
+        // 简化语言模式只区分「中文」与「其它语言」，目标语种完全由本模式决定，
+        // 不再参考调用方的目标语种配置与第一/第二语言设置。
+        if (SimpleLanguageMode)
+            return IsChinese(source) ? SimpleLanguageTargetLang : LangEnum.ChineseSimplified;
+
         var target = configuredTarget != LangEnum.Auto
             ? configuredTarget
             : source == FirstLanguage || source == LangEnum.ChineseSimplified || source == LangEnum.ChineseTraditional
@@ -109,6 +130,11 @@ public class LanguageDetector
         // null 表示使用全局 Settings 配置（文本翻译路径，行为不变）
         options ??= CreateGlobalOptions();
 
+        // 简化语言模式完全依赖识别结果：忽略调用方配置的源语种，
+        // 否则历史上残留的固定源语种会让该模式永远只走一个方向。
+        if (options.SimpleLanguageMode)
+            configuredSource = LangEnum.Auto;
+
         bool isSuccess = true;
         var source = configuredSource;
         if (configuredSource == LangEnum.Auto)
@@ -161,6 +187,8 @@ public class LanguageDetector
             _settings.SecondLanguage)
         {
             SameLanguageTargetLang = _settings.SameLanguageTargetLang,
+            SimpleLanguageMode = _settings.SimpleLanguageMode,
+            SimpleLanguageTargetLang = _settings.SimpleLanguageTargetLang,
         };
 
     /// <summary>
