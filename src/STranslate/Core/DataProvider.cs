@@ -1,7 +1,9 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using iNKORE.UI.WPF.Modern;
 using Serilog.Events;
 using STranslate.Plugin;
 using STranslate.ViewModels.Pages;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace STranslate.Core;
@@ -9,12 +11,30 @@ namespace STranslate.Core;
 /// <summary>
 /// 枚举数据提供者，提供下拉选项的数据绑定支持
 /// </summary>
-public class DataProvider
+public partial class DataProvider : ObservableObject
 {
-    public DataProvider(Internationalization i18n)
+    private readonly Settings _settings;
+
+    public DataProvider(Internationalization i18n, Settings settings)
     {
+        _settings = settings;
         i18n.OnLanguageChanged += UpdateLanguage;
+        settings.PropertyChanged += OnSettingsPropertyChanged;
         UpdateLanguage();
+        RefreshVisibleLangEnums();
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(Settings.CommonLanguages)
+            or nameof(Settings.ShowAllLanguages)
+            or nameof(Settings.SourceLang)
+            or nameof(Settings.TargetLang)
+            or nameof(Settings.SameLanguageTargetLang)
+            or nameof(Settings.SimpleLanguageTargetLang))
+        {
+            RefreshVisibleLangEnums();
+        }
     }
 
     /// <summary>
@@ -85,6 +105,91 @@ public class DataProvider
             .GetValues<SimpleLanguageTargetLangData>("LangEnum")
             .Where(x => x.Value != LangEnum.Auto)
             .ToList();
+
+    #endregion
+
+    #region VisibleLangEnums
+
+    /// <summary>
+    ///     主界面源语种下拉框选项
+    /// </summary>
+    [ObservableProperty] public partial List<LangEnumData> VisibleSourceLangEnums { get; set; } = [];
+
+    /// <summary>
+    ///     主界面目标语种下拉框选项
+    /// </summary>
+    [ObservableProperty] public partial List<LangEnumData> VisibleTargetLangEnums { get; set; } = [];
+
+    /// <summary>
+    ///     主界面「源语种与目标语种相同时」目标语种下拉框选项
+    /// </summary>
+    [ObservableProperty] public partial List<SameLanguageTargetLangData> VisibleSameLanguageTargetLangs { get; set; } = [];
+
+    /// <summary>
+    ///     主界面简化语言模式目标语种下拉框选项
+    /// </summary>
+    [ObservableProperty] public partial List<SimpleLanguageTargetLangData> VisibleSimpleLanguageTargetLangs { get; set; } = [];
+
+    /// <summary>
+    ///     按「常用语言」配置重建主界面语言下拉框选项
+    /// </summary>
+    public void RefreshVisibleLangEnums()
+    {
+        VisibleSourceLangEnums = FilterLangEnums(LangEnums, _settings.SourceLang);
+        VisibleTargetLangEnums = FilterLangEnums(LangEnums, _settings.TargetLang);
+        VisibleSameLanguageTargetLangs = FilterLangEnums(SameLanguageTargetLangs, _settings.SameLanguageTargetLang);
+        VisibleSimpleLanguageTargetLangs = FilterLangEnums(SimpleLanguageTargetLangs, _settings.SimpleLanguageTargetLang);
+    }
+
+    /// <summary>
+    ///     过滤出常用语言，并保证 <see cref="LangEnum.Auto"/>（若存在）与当前选中项始终在列表中
+    /// </summary>
+    private List<T> FilterLangEnums<T>(List<T> source, LangEnum selected) where T : DropdownDataGeneric<LangEnum>
+    {
+        if (_settings.ShowAllLanguages)
+        {
+            return source;
+        }
+
+        var order = ResolveVisibleLanguageOrder(
+            [.. source.Select(x => x.Value)],
+            _settings.CommonLanguages,
+            selected);
+
+        return [.. order.Select(value => source.FirstOrDefault(x => x.Value == value)).OfType<T>()];
+    }
+
+    /// <summary>
+    ///     计算主界面语言选择框应展示的语种及其顺序：
+    ///     常用语言按配置顺序在前，<see cref="LangEnum.Auto"/> 始终置顶，
+    ///     当前选中项必须保留，否则下拉框会显示为空。
+    /// </summary>
+    public static List<LangEnum> ResolveVisibleLanguageOrder(
+        IReadOnlyList<LangEnum> source,
+        IReadOnlyList<LangEnum> commonLanguages,
+        LangEnum selected)
+    {
+        var result = new List<LangEnum>();
+
+        Add(LangEnum.Auto);
+
+        foreach (var language in commonLanguages)
+        {
+            Add(language);
+        }
+
+        Add(selected);
+
+        return result;
+
+        void Add(LangEnum language)
+        {
+            if (source.Contains(language) && !result.Contains(language))
+            {
+                result.Add(language);
+            }
+        }
+    }
 
     #endregion
 

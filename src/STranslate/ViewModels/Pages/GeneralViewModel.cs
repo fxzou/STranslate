@@ -22,18 +22,26 @@ public partial class GeneralViewModel : SearchViewModelBase
         Languages = i18n.LoadAvailableLanguages();
 
         InitializeMainHeaderActions();
+        InitializeLanguageOptions();
 
         VisibleHeaderActions.CollectionChanged += OnMainHeaderActionsChanged;
         AvailableHeaderActions.CollectionChanged += OnMainHeaderActionsChanged;
+        LanguageOptions.CollectionChanged += OnLanguageOptionsChanged;
         Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     private bool _isSyncingMainHeaderActions;
     private bool _isMainHeaderSyncPending;
+    private bool _isSyncingLanguageOptions;
 
     public ObservableCollection<string> VisibleHeaderActions { get; } = [];
 
     public ObservableCollection<string> AvailableHeaderActions { get; } = [];
+
+    /// <summary>
+    /// 主界面语言选择框的候选语言，顺序即 <see cref="Settings.CommonLanguages"/> 的顺序
+    /// </summary>
+    public ObservableCollection<LanguageOption> LanguageOptions { get; } = [];
 
     [RelayCommand]
     private void ResetFontFamily() => Settings.FontFamily = Win32Helper.GetSystemDefaultFont();
@@ -79,6 +87,77 @@ public partial class GeneralViewModel : SearchViewModelBase
         }
 
         SyncMainHeaderActions();
+    }
+
+    /// <summary>
+    /// 按配置初始化语言列表：已启用语言按配置顺序在前，其余语言按枚举顺序在后
+    /// </summary>
+    private void InitializeLanguageOptions()
+    {
+        var configuredLanguages = Settings.CommonLanguages;
+        var options = new List<LanguageOption>();
+
+        foreach (var language in configuredLanguages)
+        {
+            var data = DataProvider.LangEnums.FirstOrDefault(x => x.Value == language);
+            if (data is not null)
+            {
+                options.Add(new LanguageOption(data, true));
+            }
+        }
+
+        foreach (var data in DataProvider.LangEnums)
+        {
+            if (data.Value == LangEnum.Auto || options.Any(x => x.Value == data.Value))
+            {
+                continue;
+            }
+
+            options.Add(new LanguageOption(data, false));
+        }
+
+        _isSyncingLanguageOptions = true;
+        try
+        {
+            foreach (var option in LanguageOptions)
+            {
+                option.PropertyChanged -= OnLanguageOptionPropertyChanged;
+            }
+
+            LanguageOptions.Clear();
+            foreach (var option in options)
+            {
+                option.PropertyChanged += OnLanguageOptionPropertyChanged;
+                LanguageOptions.Add(option);
+            }
+        }
+        finally
+        {
+            _isSyncingLanguageOptions = false;
+        }
+    }
+
+    private void OnLanguageOptionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LanguageOption.IsEnabled))
+        {
+            SyncCommonLanguages();
+        }
+    }
+
+    private void OnLanguageOptionsChanged(object? sender, NotifyCollectionChangedEventArgs e) => SyncCommonLanguages();
+
+    /// <summary>
+    /// 把列表的勾选状态与顺序写回 <see cref="Settings.CommonLanguages"/>
+    /// </summary>
+    private void SyncCommonLanguages()
+    {
+        if (_isSyncingLanguageOptions)
+        {
+            return;
+        }
+
+        Settings.ApplyCommonLanguages(LanguageOptions.Where(x => x.IsEnabled).Select(x => x.Value).ToList());
     }
 
     public List<int> ScreenNumbers
@@ -268,6 +347,12 @@ public partial class GeneralViewModel : SearchViewModelBase
         if (disposing)
         {
             Settings.PropertyChanged -= OnSettingsPropertyChanged;
+            LanguageOptions.CollectionChanged -= OnLanguageOptionsChanged;
+
+            foreach (var option in LanguageOptions)
+            {
+                option.PropertyChanged -= OnLanguageOptionPropertyChanged;
+            }
         }
 
         base.Dispose(disposing);

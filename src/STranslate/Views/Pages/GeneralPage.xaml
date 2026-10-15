@@ -356,6 +356,37 @@
                     </ui:SettingsExpander.Items>
                 </ui:SettingsExpander>
 
+                <ui:SettingsCard
+                    Description="{DynamicResource General_CommonLanguagesDescription}"
+                    Header="{DynamicResource General_CommonLanguages}"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch">
+                    <ui:SettingsCard.HeaderIcon>
+                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.LocalLanguage_20_Regular}" />
+                    </ui:SettingsCard.HeaderIcon>
+                    <ListBox
+                        MinWidth="200"
+                        MaxHeight="240"
+                        Margin="0,4,0,0"
+                        HorizontalAlignment="Stretch"
+                        dd:DragDrop.DropHandler="{StaticResource HeaderActionLiveReorderDropHandler}"
+                        dd:DragDrop.IsDragSource="True"
+                        dd:DragDrop.IsDropTarget="True"
+                        dd:DragDrop.UseDefaultDragAdorner="False"
+                        dd:DragDrop.UseDefaultEffectDataTemplate="False"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                        BorderThickness="1"
+                        ItemsSource="{Binding LanguageOptions}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Data.Display}" IsChecked="{Binding IsEnabled}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ui:SettingsCard>
+
                 <control:CardGroup>
                     <ui:SettingsCard Description="{DynamicResource General_SimpleLanguageModeDescription}" Header="{DynamicResource General_SimpleLanguageMode}">
                         <ui:SettingsCard.HeaderIcon>

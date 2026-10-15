@@ -64,6 +64,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">Same Language Target</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">When the resolved source language and target language are identical, use this target language instead. Selecting "Auto" means no replacement: the text is shown as-is without translation.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Auto (no replacement, show original)</sys:String>
+    <sys:String x:Key="General_CommonLanguages">Common Languages</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">Checked languages appear in the main window language pickers, in this order. Drag to reorder; uncheck to hide languages you rarely use.</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">Show all languages</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">Simple Language Mode</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">When enabled, the main window keeps a single language selector: the source language is still detected automatically, text detected as Chinese is translated into the language below, and any other language is translated into Simplified Chinese.</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">Chinese Target Language</sys:String>

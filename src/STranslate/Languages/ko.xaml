@@ -61,6 +61,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">동일 언어 대상</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">최종 원본 언어와 목표 언어가 완전히 같으면 목표 언어를 이 언어로 변경합니다. "자동"을 선택하면 대체하지 않고 번역하지 않으며 원문을 그대로 표시합니다.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">자동(대체 안 함, 원문 표시)</sys:String>
+    <sys:String x:Key="General_CommonLanguages">자주 쓰는 언어</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">선택한 언어가 이 순서대로 메인 화면의 언어 선택에 표시됩니다. 드래그하여 순서를 바꾸고, 선택을 해제하면 자주 쓰지 않는 언어를 숨길 수 있습니다.</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">모든 언어 표시</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">간단 언어 모드</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">활성화하면 메인 창에 언어 선택 상자가 하나만 남습니다. 원본 언어는 계속 자동으로 감지되며, 중국어로 감지되면 아래에서 지정한 언어로, 그 외 언어는 중국어 간체로 번역합니다.</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">중국어 번역 대상 언어</sys:String>

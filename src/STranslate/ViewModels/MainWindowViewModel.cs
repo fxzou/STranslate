@@ -732,6 +732,15 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         TranslateCommand.Execute(null);
     }
 
+    /// <summary>
+    ///     把简化语言模式的目标语种重置为默认值
+    /// </summary>
+    [RelayCommand]
+    private void ResetSimpleLanguageTargetLang()
+    {
+        Settings.SimpleLanguageTargetLang = Settings.DefaultSimpleLanguageTargetLang;
+    }
+
     [RelayCommand]
     private void Explain(string text)
     {

@@ -64,6 +64,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">Aynı Dil Hedefi</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">Nihai kaynak dil ile hedef dil tamamen aynı olduğunda bu hedef dili kullan. "Otomatik" seçilirse değiştirme yapılmaz ve metin çevrilmeden olduğu gibi gösterilir.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Otomatik (değiştirme yok, orijinali göster)</sys:String>
+    <sys:String x:Key="General_CommonLanguages">Sık Kullanılan Diller</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">Seçili diller bu sırayla ana pencere dil seçicilerinde görünür. Sıralamak için sürükleyin; az kullandığınız dilleri gizlemek için işareti kaldırın.</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">Tüm dilleri göster</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">Basit Dil Modu</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">Etkinleştirildiğinde ana pencerede tek bir dil seçici kalır: kaynak dil yine otomatik algılanır, Çince algılanan metin aşağıda belirtilen dile, diğer diller Basitleştirilmiş Çinceye çevrilir.</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">Çince Hedef Dili</sys:String>

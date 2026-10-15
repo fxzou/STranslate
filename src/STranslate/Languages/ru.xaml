@@ -64,6 +64,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">Целевой язык при совпадении</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">Если итоговый исходный язык и целевой язык полностью совпадают, использовать этот целевой язык. «Авто» — не заменять: текст отображается без перевода.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Авто (без замены, показать оригинал)</sys:String>
+    <sys:String x:Key="General_CommonLanguages">Часто используемые языки</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">Отмеченные языки отображаются в списках выбора языка главного окна в этом порядке. Перетаскивайте для изменения порядка; снимите флажок, чтобы скрыть редкие языки.</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">Показать все языки</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">Упрощённый языковой режим</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">При включении в главном окне остаётся один выбор языка: исходный язык по-прежнему определяется автоматически; текст, распознанный как китайский, переводится на указанный ниже язык, остальные языки — на упрощённый китайский.</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">Целевой язык для китайского</sys:String>
