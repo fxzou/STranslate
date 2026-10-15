@@ -133,6 +133,11 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial LangEnum SameLanguageTargetLang { get; set; } = LangEnum.Auto;
 
     /// <summary>
+    ///     简化语言模式目标语种的默认值，属性初始值与界面上的重置按钮都引用它
+    /// </summary>
+    public const LangEnum DefaultSimpleLanguageTargetLang = LangEnum.English;
+
+    /// <summary>
     ///     简化语言模式。
     ///     * 打开后主界面只保留一个语言选择框，源语言仍自动识别：
     ///       识别为中文时译为 <see cref="SimpleLanguageTargetLang"/>，识别为其它语言时译为简体中文
@@ -142,7 +147,7 @@ public partial class Settings : ObservableObject
     /// <summary>
     ///     简化语言模式下，中文要翻译成的目标语种
     /// </summary>
-    [ObservableProperty] public partial LangEnum SimpleLanguageTargetLang { get; set; } = LangEnum.English;
+    [ObservableProperty] public partial LangEnum SimpleLanguageTargetLang { get; set; } = DefaultSimpleLanguageTargetLang;
 
     /// <summary>
     /// 文本输出是否使用剪贴板粘贴。
