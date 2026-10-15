@@ -1,48 +1,39 @@
-name: Public STranslate
+name: CI
 
-# https://github.com/softprops/action-gh-release/issues/236#issuecomment-1150530128
-# 无需 Token 即可发布
-permissions:
-  contents: write
-
+# 每次提交 / PR 都会触发：只做构建与单元测试，不会产出任何安装文件。
+# 打包不在这里做——需要打包时到 Actions 页面手动触发 "Manual Build" 工作流，
+# 那个工作流带有 environment 人工审批环节，批准后才会真正打包。
 on:
-  release:
-    types: [published]
   push:
-    tags:
-      - "*" # Push events to matching *, i.e. 1.0, 20.15.10
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+# 本工作流只读代码，不再发布 Release
+permissions:
+  contents: read
 
 jobs:
   build:
-    runs-on: windows-latest # 添加EnableWindowsTargeting可支持跨平台编译WPF项目
+    name: Build & Test
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '10.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
 
-    - name: Install vpk
-      run: dotnet tool install -g vpk
+      # 排除依赖真实桌面/多显示器的 WPF 窗口动画测试：它们在无头 runner 上必然失败，
+      # 与翻译逻辑无关；其余测试作为回归门槛。
+      - name: Test
+        run: >
+          dotnet test src/Tests/STranslate.Tests/STranslate.Tests.csproj --configuration Release
+          --filter "FullyQualifiedName!~WindowShowAnimationTests&FullyQualifiedName!~ModernWindowLifecycleTests"
 
-    - name: Build and Pack
-      shell: pwsh
-      env:
-        VERSION: ${{ github.ref_name }}
-        REPO_URL: ${{ github.server_url }}/${{ github.repository }}
-      run: |
-        .\build.ps1 $env:VERSION
-        .\post_build.ps1 -Version $env:VERSION -RepoUrl $env:REPO_URL
-
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        tag_name: ${{ github.ref_name }}
-        body_path: CHANGELOG.md
-        draft: false # 设置为 false 可立即发布版本
-        files: |
-          publish/*
+      - name: Build
+        run: dotnet build src/STranslate.slnx --configuration Release
