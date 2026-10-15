@@ -95,11 +95,13 @@ jobs:
           .\build.ps1 $env:VERSION
           .\post_build.ps1 -Version $env:VERSION -RepoUrl $env:REPO_URL
 
+      # 只保留安装器：Velopack 产出的 nupkg / RELEASES / releases.win.json / Portable.zip 都不需要留存。
+      # 代价是内置的自动更新检查与 delta 增量包不再可用（它们依赖 RELEASES + nupkg）。
       - name: Upload installer
         uses: actions/upload-artifact@v7
         with:
           name: STranslate-${{ needs.prepare.outputs.version }}
-          path: publish/*
+          path: publish/STranslate-win-Setup.exe
           if-no-files-found: error
           retention-days: 30
 
@@ -110,4 +112,4 @@ jobs:
           tag_name: v${{ needs.prepare.outputs.version }}
           name: v${{ needs.prepare.outputs.version }}
           draft: true
-          files: publish/*
+          files: publish/STranslate-win-Setup.exe
