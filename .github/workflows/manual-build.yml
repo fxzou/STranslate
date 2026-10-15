@@ -51,9 +51,13 @@ jobs:
           "clean=$v" >> $env:GITHUB_OUTPUT
           Write-Host "打包版本: $v"
 
+      # 排除依赖真实桌面/多显示器的 WPF 窗口动画测试：它们在无头 runner 上必然失败，
+      # 与翻译逻辑无关，不能作为打包门槛；其余测试照常作为回归门槛。
       - name: Test
         if: ${{ inputs.run_tests }}
-        run: dotnet test src/Tests/STranslate.Tests/STranslate.Tests.csproj --configuration Release
+        run: >
+          dotnet test src/Tests/STranslate.Tests/STranslate.Tests.csproj --configuration Release
+          --filter "FullyQualifiedName!~WindowShowAnimationTests&FullyQualifiedName!~ModernWindowLifecycleTests"
 
       - name: Install vpk
         run: dotnet tool install -g vpk
