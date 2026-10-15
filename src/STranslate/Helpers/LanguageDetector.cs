@@ -19,7 +19,37 @@ public sealed record LangDetectOptions(
     double LocalDetectorRate,
     LangEnum SourceLangIfAuto,
     LangEnum FirstLanguage,
-    LangEnum SecondLanguage);
+    LangEnum SecondLanguage)
+{
+    /// <summary>
+    ///     最终源语种与目标语种相同时改用的目标语种。
+    ///     <see langword="null"/> 表示本配置包不参与该规则（例如图片翻译链路保持原有行为）；
+    ///     <see cref="LangEnum.Auto"/> 表示不替换，由调用方直接展示原文。
+    /// </summary>
+    public LangEnum? SameLanguageTargetLang { get; init; }
+
+    /// <summary>
+    ///     根据最终源语种与调用方目标语种配置解析应使用的目标语种。
+    /// </summary>
+    /// <param name="source">实际参与翻译的源语种。</param>
+    /// <param name="configuredTarget">调用方配置的目标语种。</param>
+    /// <returns>当前翻译链路应使用的目标语种。</returns>
+    public LangEnum ResolveTargetLanguage(LangEnum source, LangEnum configuredTarget)
+    {
+        var target = configuredTarget != LangEnum.Auto
+            ? configuredTarget
+            : source == FirstLanguage || source == LangEnum.ChineseSimplified || source == LangEnum.ChineseTraditional
+                ? SecondLanguage
+                : FirstLanguage;
+
+        // 源语种与目标语种一致时按配置改用一个可翻译的目标语种；
+        // 未配置（null）或配置为 Auto 则保持原样，由调用方跳过翻译并直接展示原文。
+        if (target == source && SameLanguageTargetLang is { } fallback && fallback != LangEnum.Auto)
+            target = fallback;
+
+        return target;
+    }
+}
 
 /// <summary>
 ///     <see href="https://github.com/pot-app/pot-desktop/blob/master/src/utils/lang_detect.js" />
@@ -77,12 +107,7 @@ public class LanguageDetector
         LangDetectOptions? options = null)
     {
         // null 表示使用全局 Settings 配置（文本翻译路径，行为不变）
-        options ??= new LangDetectOptions(
-            _settings.LanguageDetector,
-            _settings.LocalDetectorRate,
-            _settings.SourceLangIfAuto,
-            _settings.FirstLanguage,
-            _settings.SecondLanguage);
+        options ??= CreateGlobalOptions();
 
         bool isSuccess = true;
         var source = configuredSource;
@@ -118,19 +143,25 @@ public class LanguageDetector
     /// </summary>
     /// <param name="source">实际参与翻译的源语种。</param>
     /// <param name="configuredTarget">调用方配置的目标语种。</param>
+    /// <param name="options">语种识别配置包，<see langword="null"/> 表示使用全局 <see cref="Settings"/> 配置。</param>
     /// <returns>当前翻译链路应使用的目标语种。</returns>
     public static LangEnum GetTargetLanguage(LangEnum source, LangEnum configuredTarget, LangDetectOptions? options = null)
-    {
-        if (configuredTarget != LangEnum.Auto)
-            return configuredTarget;
+        => (options ?? CreateGlobalOptions()).ResolveTargetLanguage(source, configuredTarget);
 
-        var first = options?.FirstLanguage ?? _settings.FirstLanguage;
-        var second = options?.SecondLanguage ?? _settings.SecondLanguage;
-
-        return (source == first || source == LangEnum.ChineseSimplified || source == LangEnum.ChineseTraditional)
-            ? second
-            : first;
-    }
+    /// <summary>
+    /// 使用全局 <see cref="Settings"/> 配置构造语种识别配置包。
+    /// </summary>
+    /// <returns>语种识别配置包。</returns>
+    private static LangDetectOptions CreateGlobalOptions()
+        => new(
+            _settings.LanguageDetector,
+            _settings.LocalDetectorRate,
+            _settings.SourceLangIfAuto,
+            _settings.FirstLanguage,
+            _settings.SecondLanguage)
+        {
+            SameLanguageTargetLang = _settings.SameLanguageTargetLang,
+        };
 
     /// <summary>
     ///     识别语种

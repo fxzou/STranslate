@@ -61,6 +61,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">Якщо в будь-якому сценарії перекладу мовою перекладу вибрано «Авто», а мова оригіналу інша (зокрема друга мова), перекладати першою мовою.</sys:String>
     <sys:String x:Key="General_SecondLanguage">Друга мова</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">Якщо в будь-якому сценарії перекладу мовою перекладу вибрано «Авто», а мова оригіналу — перша, перекладати другою мовою.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">Цільова мова при збігу</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">Якщо підсумкова мова джерела та цільова мова повністю збігаються, використовувати цю цільову мову. «Авто» — не замінювати: текст показується без перекладу.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Авто (без заміни, показати оригінал)</sys:String>
     <sys:String x:Key="General_HttpTimeout">Тайм-аут</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">Тайм-аут мережевого запиту в секундах.</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">Виводити текст через буфер обміну</sys:String>

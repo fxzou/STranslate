@@ -345,6 +345,14 @@
                                 SelectedValue="{Binding Settings.SecondLanguage}"
                                 SelectedValuePath="Value" />
                         </ui:SettingsCard>
+
+                        <ui:SettingsCard Description="{DynamicResource General_SameLanguageTargetLanguageDescription}" Header="{DynamicResource General_SameLanguageTargetLanguage}">
+                            <ComboBox
+                                DisplayMemberPath="Display"
+                                ItemsSource="{Binding DataProvider.SameLanguageTargetLangs}"
+                                SelectedValue="{Binding Settings.SameLanguageTargetLang}"
+                                SelectedValuePath="Value" />
+                        </ui:SettingsCard>
                     </ui:SettingsExpander.Items>
                 </ui:SettingsExpander>
 

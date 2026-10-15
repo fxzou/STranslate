@@ -61,6 +61,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">When the target language is set to Auto in any translation scenario, and the source language is another language (including the second language), the target language uses the first language.</sys:String>
     <sys:String x:Key="General_SecondLanguage">Second Language</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">When the target language is set to Auto in any translation scenario, and the source language is the first language, the target language uses the second language.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">Same Language Target</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">When the resolved source language and target language are identical, use this target language instead. Selecting "Auto" means no replacement: the text is shown as-is without translation.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Auto (no replacement, show original)</sys:String>
     <sys:String x:Key="General_HttpTimeout">Timeout</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">Network request timeout in seconds.</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">Use Clipboard for Text Output</sys:String>

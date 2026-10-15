@@ -58,6 +58,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">任意の翻訳シーンで翻訳先が自動、かつ翻訳元が他の言語（第二言語を含む）の場合、翻訳先に第一言語を使用します。</sys:String>
     <sys:String x:Key="General_SecondLanguage">第二言語</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">任意の翻訳シーンで翻訳先が自動、かつ翻訳元が第一言語の場合、翻訳先に第二言語を使用します。</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">同一言語のターゲット</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">最終的な原文言語と訳文言語が完全に同じ場合、訳文言語をこの言語に変更します。「自動」を選択すると置き換えを行わず、翻訳せずに原文をそのまま表示します。</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">自動（置き換えなし・原文を表示）</sys:String>
     <sys:String x:Key="General_HttpTimeout">タイムアウト</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">ネットワークリクエストのタイムアウト時間。単位：秒。</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">テキスト出力にクリップボードを使用</sys:String>

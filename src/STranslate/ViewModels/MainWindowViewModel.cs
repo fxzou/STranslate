@@ -526,12 +526,17 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                         return;
                 }
 
+                // 源语种与目标语种一致时展示的是原文，不作为翻译结果写入历史。
+                if (operation.IsPassthrough)
+                    return;
+
                 var historyData = new HistoryData(service)
                 {
                     TransResult = CloneTranslateResult(translateResult)
                 };
 
-                if (service.Options?.AutoBackTranslation ?? false)
+                if (context.EffectiveSource != context.EffectiveTarget &&
+                    (service.Options?.AutoBackTranslation ?? false))
                 {
                     var backResult = await operation.BackTranslateAsync(
                         plugin,
@@ -1061,7 +1066,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 operation).ConfigureAwait(false);
         }
         // 否则，只执行反向翻译（如果需要）
-        else if ((service.Options?.AutoBackTranslation ?? false) && history.GetData(service)?.TransBackResult == null)
+        // 源语种与目标语种一致时主结果为原文，回译没有意义。
+        else if (source != target &&
+                 (service.Options?.AutoBackTranslation ?? false) &&
+                 history.GetData(service)?.TransBackResult == null)
         {
             await ExecuteBackTranslationOnlyAsync(
                 service,
@@ -1089,12 +1097,16 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             !operation.IsCurrent(plugin.TransResult))
             return;
 
+        // 源语种与目标语种一致时展示的是原文，不作为翻译结果写入历史与缓存。
+        if (operation.IsPassthrough)
+            return;
+
         var historyData = new HistoryData(service);
         history.Data.Add(historyData);
         UpdateHistoryServiceSnapshot(historyData, service);
         historyData.TransResult = translateResult;
 
-        if (service.Options?.AutoBackTranslation ?? false)
+        if (source != target && (service.Options?.AutoBackTranslation ?? false))
         {
             var backResult = await operation.BackTranslateAsync(
                 plugin,
@@ -1918,6 +1930,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 _logger.LogWarning($"Language detection failed for text: {text}");
                 _snackbar.ShowWarning(_i18n.GetTranslation("LanguageDetectionFailed"));
             }
+
+            // 源语种与目标语种一致时不翻译，直接输出原文。
+            if (source == target)
+            {
+                InputHelper.PrintText(text);
+                return;
+            }
+
             var result = new TranslateResult();
             await transPlugin.TranslateAsync(new TranslateRequest(text, source, target), result, cancellationToken).ConfigureAwait(false);
 

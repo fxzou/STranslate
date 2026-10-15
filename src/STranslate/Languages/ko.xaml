@@ -58,6 +58,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">모든 번역 상황에서 목표 언어가 자동이고 원본 언어가 다른 언어(제2 언어 포함)일 때, 목표 언어로 제1 언어를 사용합니다.</sys:String>
     <sys:String x:Key="General_SecondLanguage">제2 언어</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">모든 번역 상황에서 목표 언어가 자동이고 원본 언어가 제1 언어일 때, 목표 언어로 제2 언어를 사용합니다.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">동일 언어 대상</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">최종 원본 언어와 목표 언어가 완전히 같으면 목표 언어를 이 언어로 변경합니다. "자동"을 선택하면 대체하지 않고 번역하지 않으며 원문을 그대로 표시합니다.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">자동(대체 안 함, 원문 표시)</sys:String>
     <sys:String x:Key="General_HttpTimeout">시간 초과</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">네트워크 요청 시간 초과 시간, 단위: 초.</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">텍스트 출력 시 클립보드 사용</sys:String>

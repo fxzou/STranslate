@@ -127,6 +127,12 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial LangEnum SecondLanguage { get; set; } = LangEnum.English;
 
     /// <summary>
+    ///     最终源语种与目标语种相同时改用的目标语种
+    ///     * <see cref="LangEnum.Auto"/> 表示不替换，此时直接展示原文而不翻译
+    /// </summary>
+    [ObservableProperty] public partial LangEnum SameLanguageTargetLang { get; set; } = LangEnum.Auto;
+
+    /// <summary>
     /// 文本输出是否使用剪贴板粘贴。
     /// false: 键盘模拟输入（默认）
     /// true: 剪贴板 Ctrl+V
