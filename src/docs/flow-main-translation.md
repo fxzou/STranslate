@@ -24,6 +24,8 @@
 - `STranslate/Helpers/LanguageDetector.cs`
   - `GetLanguageAsync()`：源语种判定与目标语种推导。
   - `GetTargetLanguage()`：根据实际源语种推导目标语种。
+  - 若推导出的目标语种与最终源语种一致，且 `Settings.SameLanguageTargetLang` 配置了非 `Auto` 语种，则改用该语种。
+  - 未配置该规则（图片翻译链路的 `LangDetectOptions` 不设置该字段）或配置为 `Auto` 时保持原样，由 `TranslationOperation.TranslateAsync()` 跳过翻译、直接把原文发布到结果通道（`IsPassthrough`）。此类结果不写入历史与缓存，避免修改该设置后旧文本仍命中缓存显示原文。
 - `STranslate/Core/SqlService.cs`
   - `GetDataAsync()` / `InsertOrUpdateDataAsync()`：历史缓存读取与落盘。
 - `STranslate/Core/Utilities.cs`

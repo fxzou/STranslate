@@ -61,6 +61,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">Herhangi bir çeviri senaryosunda hedef dil Otomatik olarak ayarlandığında ve kaynak dil başka bir dil olduğunda (ikinci dil dahil), hedef dil ilk dili kullanır.</sys:String>
     <sys:String x:Key="General_SecondLanguage">İkinci Dil</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">Herhangi bir çeviri senaryosunda hedef dil Otomatik olarak ayarlandığında ve kaynak dil ilk dil olduğunda, hedef dil ikinci dili kullanır.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">Aynı Dil Hedefi</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">Nihai kaynak dil ile hedef dil tamamen aynı olduğunda bu hedef dili kullan. "Otomatik" seçilirse değiştirme yapılmaz ve metin çevrilmeden olduğu gibi gösterilir.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">Otomatik (değiştirme yok, orijinali göster)</sys:String>
     <sys:String x:Key="General_HttpTimeout">Zaman Aşımı</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">Ağ isteği zaman aşımı süresi (saniye).</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">Metin Çıktısı için Pano Kullan</sys:String>

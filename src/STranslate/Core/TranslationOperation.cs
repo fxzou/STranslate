@@ -35,6 +35,12 @@ internal sealed class TranslationOperation
     internal CancellationToken CancellationToken { get; }
     internal bool IsLatestAutomatic => _coordinator.IsLatestAutomatic(OperationId);
 
+    /// <summary>
+    /// 本次操作因源语种与目标语种一致而未真正翻译，展示的是原文。
+    /// 此类结果不作为翻译结果写入历史或缓存，避免修改「相同语言目标」后仍命中旧缓存。
+    /// </summary>
+    internal bool IsPassthrough { get; private set; }
+
     internal bool TryPrepare(ITranslatePlugin plugin)
     {
         var canPublishMainResult = TryReset(plugin.TransResult);
@@ -70,10 +76,13 @@ internal sealed class TranslationOperation
         ITranslatePlugin plugin,
         LangEnum source,
         LangEnum target) =>
-        ExecuteTranslateAsync(
-            plugin,
-            new TranslateRequest(Text, source, target),
-            plugin.TransResult);
+        // 源语种与目标语种一致时无需翻译，直接把原文作为结果发布。
+        source == target
+            ? PublishSourceTextAsync(plugin.TransResult)
+            : ExecuteTranslateAsync(
+                plugin,
+                new TranslateRequest(Text, source, target),
+                plugin.TransResult);
 
     internal Task<TranslateResult> BackTranslateAsync(
         ITranslatePlugin plugin,
@@ -125,6 +134,38 @@ internal sealed class TranslationOperation
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 源语种与目标语种一致时不调用翻译服务，直接把原文发布到可见结果通道。
+    /// </summary>
+    private Task<TranslateResult> PublishSourceTextAsync(TranslateResult visibleResult)
+    {
+        IsPassthrough = true;
+
+        var result = new TranslateResult
+        {
+            IsSuccess = true,
+            Text = Text,
+            Duration = TimeSpan.Zero,
+        };
+
+        if (!IsCurrent(visibleResult))
+        {
+            result.IsSuccess = false;
+            return Task.FromResult(result);
+        }
+
+        // 原文即译文：直接写入可见结果通道，无需经过 Forward 的增量变更通知。
+        TryPublish(visibleResult, () =>
+        {
+            visibleResult.IsSuccess = true;
+            visibleResult.Text = Text;
+            visibleResult.Duration = TimeSpan.Zero;
+            visibleResult.IsProcessing = false;
+        });
+
+        return Task.FromResult(result);
     }
 
     private async Task<TranslateResult> ExecuteTranslateAsync(

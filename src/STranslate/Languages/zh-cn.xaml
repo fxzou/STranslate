@@ -61,6 +61,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">当任意翻译场景的目标语言设为自动，且源语言为其他语言（包含第二语言）时，目标语言使用第一语言。</sys:String>
     <sys:String x:Key="General_SecondLanguage">第二语言</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">当任意翻译场景的目标语言设为自动，且源语言为第一语言时，目标语言使用第二语言。</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">相同语言目标</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">当最终源语言与目标语言完全相同时，目标语言改用此语言。选择「自动」表示不替换，此时不翻译并直接展示原文。</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">自动（不替换，展示原文）</sys:String>
     <sys:String x:Key="General_HttpTimeout">超时时间</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">请求网络请求的超时时间，单位：秒。</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">文本输出使用剪贴板</sys:String>

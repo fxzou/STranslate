@@ -23,6 +23,7 @@ public class DataProvider
     public void UpdateLanguage()
     {
         DropdownDataGeneric<LangEnum>.UpdateLabels(LangEnums);
+        DropdownDataGeneric<LangEnum>.UpdateLabels(SameLanguageTargetLangs);
         DropdownDataGeneric<ProxyType>.UpdateLabels(ProxyTypes);
         DropdownDataGeneric<LanguageDetectorType>.UpdateLabels(LanguageDetectors);
         DropdownDataGeneric<ElementTheme>.UpdateLabels(ColorSchemes);
@@ -53,6 +54,24 @@ public class DataProvider
 
     public List<LangEnumData> LangEnums { get; } =
         DropdownDataGeneric<LangEnum>.GetValues<LangEnumData>("LangEnum");
+
+    public class SameLanguageTargetLangData : DropdownDataGeneric<LangEnum> { }
+
+    /// <summary>
+    /// 「源语种与目标语种相同时」使用的目标语种选项。
+    /// <see cref="LangEnum.Auto"/> 表示不替换，此时不翻译并直接展示原文。
+    /// </summary>
+    public List<SameLanguageTargetLangData> SameLanguageTargetLangs { get; } =
+        DropdownDataGeneric<LangEnum>
+            .GetValues<SameLanguageTargetLangData>("LangEnum")
+            .Select(x =>
+            {
+                if (x.Value == LangEnum.Auto)
+                    x.LocalizationKey = "General_SameLanguageTargetLanguageAuto";
+
+                return x;
+            })
+            .ToList();
 
     #endregion
 

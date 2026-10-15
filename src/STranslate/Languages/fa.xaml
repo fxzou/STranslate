@@ -61,6 +61,9 @@
     <sys:String x:Key="General_FirstLanguageDescription">هنگامی که زبان مقصد روی خودکار تنظیم شده و زبان مبدأ زبان دیگری باشد، زبان مقصد به زبان اول تغییر می‌کند.</sys:String>
     <sys:String x:Key="General_SecondLanguage">زبان دوم</sys:String>
     <sys:String x:Key="General_SecondLanguageDescription">هنگامی که زبان مقصد روی خودکار تنظیم شده و زبان مبدأ همان زبان اول باشد، زبان مقصد به زبان دوم تغییر می‌کند.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguage">زبان مقصد در صورت یکسانی</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageDescription">هنگامی که زبان مبدأ و زبان مقصد نهایی کاملاً یکسان باشند، از این زبان مقصد استفاده می‌شود. انتخاب «خودکار» به معنای جایگزین نشدن است؛ در این حالت متن بدون ترجمه نمایش داده می‌شود.</sys:String>
+    <sys:String x:Key="General_SameLanguageTargetLanguageAuto">خودکار (بدون جایگزینی، نمایش متن اصلی)</sys:String>
     <sys:String x:Key="General_HttpTimeout">زمان مهلت (Timeout)</sys:String>
     <sys:String x:Key="General_HttpTimeoutDescription">زمان مهلت درخواست شبکه به ثانیه.</sys:String>
     <sys:String x:Key="General_UseClipboardOutput">استفاده از حافظه موقت (Clipboard) برای خروجی متن</sys:String>
