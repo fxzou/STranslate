@@ -150,6 +150,25 @@ public partial class Settings : ObservableObject
     [ObservableProperty] public partial LangEnum SimpleLanguageTargetLang { get; set; } = DefaultSimpleLanguageTargetLang;
 
     /// <summary>
+    ///     常用语言的默认值
+    /// </summary>
+    private static readonly LangEnum[] DefaultCommonLanguages =
+        [LangEnum.ChineseSimplified, LangEnum.ChineseTraditional, LangEnum.English, LangEnum.Japanese, LangEnum.Korean];
+
+    /// <summary>
+    ///     常用语言（有序）
+    ///     * 主界面语言选择框默认按此顺序只展示这些语言，设置页可调整顺序与启停
+    ///     * 不包含 <see cref="LangEnum.Auto"/>，该值由界面按需补充
+    /// </summary>
+    [ObservableProperty] public partial List<LangEnum> CommonLanguages { get; set; } = [.. DefaultCommonLanguages];
+
+    /// <summary>
+    ///     主界面语言选择框是否展示全部语言
+    ///     * false: 只展示 <see cref="CommonLanguages"/>；true: 展示全部语言
+    /// </summary>
+    [ObservableProperty] public partial bool ShowAllLanguages { get; set; } = false;
+
+    /// <summary>
     /// 文本输出是否使用剪贴板粘贴。
     /// false: 键盘模拟输入（默认）
     /// true: 剪贴板 Ctrl+V
@@ -442,6 +461,17 @@ public partial class Settings : ObservableObject
 
     internal void Save() => Storage?.Save();
 
+    /// <summary>
+    ///     兜底：配置文件中缺失或写入 null 时恢复常用语言的默认值
+    /// </summary>
+    public void EnsureCommonLanguagesInitialized()
+    {
+        if (CommonLanguages is null)
+        {
+            CommonLanguages = [.. DefaultCommonLanguages];
+        }
+    }
+
     public void EnsureMainHeaderVisibleActionsInitialized()
     {
         var normalizedActions = MainHeaderActions.Normalize(MainHeaderVisibleActions);
@@ -489,6 +519,22 @@ public partial class Settings : ObservableObject
         SyncLegacyMainHeaderVisibility(normalizedActions);
     }
 
+    /// <summary>
+    ///     应用常用语言配置，去重并剔除 <see cref="LangEnum.Auto"/>
+    /// </summary>
+    public void ApplyCommonLanguages(IReadOnlyList<LangEnum> languages)
+    {
+        var normalizedLanguages = languages
+            .Where(x => x != LangEnum.Auto)
+            .Distinct()
+            .ToList();
+
+        if (!CommonLanguages.SequenceEqual(normalizedLanguages))
+        {
+            CommonLanguages = normalizedLanguages;
+        }
+    }
+
     public void Initialize()
     {
         if (Storage is null)
@@ -497,6 +543,7 @@ public partial class Settings : ObservableObject
         }
 
         NormalizeLayoutAnalysisMode();
+        EnsureCommonLanguagesInitialized();
         EnsureMainHeaderVisibleActionsInitialized();
 
         ApplyLogLevel();

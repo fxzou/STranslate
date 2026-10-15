@@ -64,6 +64,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">相同语言目标</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">当最终源语言与目标语言完全相同时，目标语言改用此语言。选择「自动」表示不替换，此时不翻译并直接展示原文。</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">自动（不替换，展示原文）</sys:String>
+    <sys:String x:Key="General_CommonLanguages">常用语言</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">勾选的语言会按此顺序出现在主界面的语言选择框中。拖动可调整顺序，取消勾选可隐藏不常用的语言。</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">显示全部语言</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">简化语言模式</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">打开后主界面只保留一个语言选择框：源语言仍自动识别，识别为中文时翻译成下方指定的语言，识别为其它语言时翻译成简体中文。</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">中文翻译目标语言</sys:String>

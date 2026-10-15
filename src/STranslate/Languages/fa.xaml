@@ -64,6 +64,9 @@
     <sys:String x:Key="General_SameLanguageTargetLanguage">زبان مقصد در صورت یکسانی</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageDescription">هنگامی که زبان مبدأ و زبان مقصد نهایی کاملاً یکسان باشند، از این زبان مقصد استفاده می‌شود. انتخاب «خودکار» به معنای جایگزین نشدن است؛ در این حالت متن بدون ترجمه نمایش داده می‌شود.</sys:String>
     <sys:String x:Key="General_SameLanguageTargetLanguageAuto">خودکار (بدون جایگزینی، نمایش متن اصلی)</sys:String>
+    <sys:String x:Key="General_CommonLanguages">زبان‌های پرکاربرد</sys:String>
+    <sys:String x:Key="General_CommonLanguagesDescription">زبان‌های انتخاب‌شده به این ترتیب در فهرست‌های انتخاب زبان پنجره اصلی نمایش داده می‌شوند. برای تغییر ترتیب بکشید؛ برای پنهان کردن زبان‌های کم‌کاربرد تیک را بردارید.</sys:String>
+    <sys:String x:Key="General_ShowAllLanguages">نمایش همه زبان‌ها</sys:String>
     <sys:String x:Key="General_SimpleLanguageMode">حالت زبان ساده</sys:String>
     <sys:String x:Key="General_SimpleLanguageModeDescription">با فعال شدن، در پنجره اصلی تنها یک انتخابگر زبان باقی می‌ماند: زبان مبدأ همچنان به‌صورت خودکار تشخیص داده می‌شود؛ متن شناسایی‌شده به‌عنوان چینی به زبان مشخص‌شده در پایین و سایر زبان‌ها به چینی ساده‌شده ترجمه می‌شوند.</sys:String>
     <sys:String x:Key="General_SimpleLanguageTargetLanguage">زبان مقصد چینی</sys:String>
