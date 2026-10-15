@@ -1,6 +1,11 @@
 name: Manual Build
 
 # 手动触发的打包流程：构建 Release 并用 Velopack 生成 Windows 安装文件。
+#
+# 打包必须人工放行：package job 绑定了带 Required reviewers 的 environment（packaging），
+# 触发后会先跑测试，然后在真正打包前暂停，等你在 Actions 页面点 Approve 才继续。
+# 审批规则配置在仓库 Settings -> Environments -> packaging。
+#
 # 注意：workflow_dispatch 要求该文件先存在于默认分支（main），
 # Actions 页面才会出现「Run workflow」按钮；触发时可以选择任意分支。
 on:
@@ -26,9 +31,12 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  # 第一阶段：校验版本号并按需跑测试。这一步不会产出任何安装文件。
+  prepare:
+    name: Prepare
     runs-on: windows-latest
-
+    outputs:
+      version: ${{ steps.version.outputs.clean }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -59,13 +67,29 @@ jobs:
           dotnet test src/Tests/STranslate.Tests/STranslate.Tests.csproj --configuration Release
           --filter "FullyQualifiedName!~WindowShowAnimationTests&FullyQualifiedName!~ModernWindowLifecycleTests"
 
+  # 第二阶段：真正打包。绑定 environment 后，本 job 会在开始前暂停，等待人工批准。
+  # 不批准就不会构建，也不会有安装文件产出。
+  package:
+    name: Package (manual approval required)
+    needs: prepare
+    runs-on: windows-latest
+    environment: packaging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Install vpk
         run: dotnet tool install -g vpk
 
       - name: Build and Pack
         shell: pwsh
         env:
-          VERSION: ${{ steps.version.outputs.clean }}
+          VERSION: ${{ needs.prepare.outputs.version }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
         run: |
           .\build.ps1 $env:VERSION
@@ -74,7 +98,7 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v7
         with:
-          name: STranslate-${{ steps.version.outputs.clean }}
+          name: STranslate-${{ needs.prepare.outputs.version }}
           path: publish/*
           if-no-files-found: error
           retention-days: 30
@@ -83,7 +107,7 @@ jobs:
         if: ${{ inputs.create_release }}
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v${{ steps.version.outputs.clean }}
-          name: v${{ steps.version.outputs.clean }}
+          tag_name: v${{ needs.prepare.outputs.version }}
+          name: v${{ needs.prepare.outputs.version }}
           draft: true
           files: publish/*
