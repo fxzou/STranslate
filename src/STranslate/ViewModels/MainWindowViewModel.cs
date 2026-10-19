@@ -1667,11 +1667,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         }
         else
         {
-            // 否则，获取当前输入文本对应的历史记录
-            var current = await _sqlService.GetDataAsync(
-                InputText,
-                Settings.SourceLang.ToString(),
-                Settings.TargetLang.ToString());
+            // 否则，获取当前输入文本对应的历史记录。
+            // 历史按实际参与翻译的语种落库，不能再用配置语种去精确匹配，
+            // 否则切换过语种后就找不到当前记录，前后翻页会直接提示「已经到头了」。
+            var current = await _sqlService.GetLatestBySourceTextAsync(InputText);
             if (current != null)
             {
                 var history = isNext ? await _sqlService.GetNextAsync(current) : await _sqlService.GetPreviousAsync(current);

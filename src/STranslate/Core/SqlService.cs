@@ -167,6 +167,26 @@ public class SqlService
     }
 
     /// <summary>
+    ///     按原文精确查询最近一条历史记录，忽略语种字段
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public async Task<HistoryModel?> GetLatestBySourceTextAsync(string content, CancellationToken? token = null)
+    {
+        await using var connection = new SqliteConnection(DataLocation.DbConnectionString);
+        await connection.OpenAsync(token ?? CancellationToken.None);
+
+        // 历史记录按实际参与翻译的语种落库，与当前配置的语种未必相同，
+        // 因此这里只按原文匹配，取最近写入的一条作为导航起点。
+        return await connection.QueryFirstOrDefaultAsync<HistoryModel>(
+            new CommandDefinition(
+                "SELECT * FROM History WHERE SourceText = @SourceText ORDER BY Id DESC LIMIT 1",
+                new { SourceText = content },
+                cancellationToken: token ?? CancellationToken.None));
+    }
+
+    /// <summary>
     ///     模糊查询内容相关的结果
     /// </summary>
     /// <param name="content"></param>

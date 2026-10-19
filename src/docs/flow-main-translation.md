@@ -28,7 +28,8 @@
   - 未配置该规则（图片翻译链路的 `LangDetectOptions` 不设置该字段）或配置为 `Auto` 时保持原样，由 `TranslationOperation.TranslateAsync()` 跳过翻译、直接把原文发布到结果通道（`IsPassthrough`）。此类结果不写入历史与缓存，避免修改该设置后旧文本仍命中缓存显示原文。
   - 简化语言模式（`Settings.SimpleLanguageMode`）：打开后不再参考调用方目标语种与第一/第二语言设置，只区分「中文」与「其它语言」——源语种为 `ChineseSimplified`/`ChineseTraditional`/`Cantonese` 时译为 `Settings.SimpleLanguageTargetLang`，否则译为 `ChineseSimplified`。主界面因此只保留一个语言选择框（绑定 `Settings.SimpleLanguageTargetLang`，默认英语），`SwapLanguageCommand` 在该模式下直接返回。图片翻译链路的 `LangDetectOptions` 不设置 `SimpleLanguageMode`，行为不变。
 - `STranslate/Core/SqlService.cs`
-  - `GetDataAsync()` / `InsertOrUpdateDataAsync()`：历史缓存读取与落盘。
+  - `GetDataAsync()` / `InsertOrUpdateDataAsync()`：历史缓存读取与落盘，键为 `(SourceText, SourceLang, TargetLang)`，其中语种使用实际参与翻译的语种。
+  - `GetLatestBySourceTextAsync()`：按原文精确取最近一条历史，供历史前后翻页定位起点；不能再用配置语种精确匹配，否则切换语种后找不到当前记录。
 - `STranslate/Core/Utilities.cs`
   - `CapturedTextHandler()`：取词文本后处理。
 
