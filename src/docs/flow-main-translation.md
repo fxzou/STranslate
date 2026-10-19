@@ -44,9 +44,10 @@
    - 被后续请求替代的旧任务仍可完成取消和资源清理，但不得覆盖新结果、触发自动复制或写入历史。
 3. 进入 `ExecuteTranslateAsync(checkCacheFirst)`：
    - 获取已启用且 `ExecMode == Automatic` 的服务。
-   - 若启用历史缓存：用 `(InputText, SourceLang, TargetLang)` 查询 `SqlService`。
+   - 先调用 `LanguageDetector.GetLanguageAsync()` 获取本次实际参与翻译的 `source/target`，再查询历史缓存：缓存键为 `(InputText, EffectiveSource, EffectiveTarget)`。
+   - 识别必须先于缓存查询，否则缓存键只能退化为配置语种；简化语言模式切换目标语种、或调整“相同语言目标”后，配置语种不变会导致旧语种的结果被命中。
    - 命中缓存后把结果注入各插件结果对象，仅保留未命中服务继续实时执行。
-4. 对未命中服务调用 `LanguageDetector.GetLanguageAsync()` 获取最终 `source/target`。
+4. 未命中缓存的服务复用同一组 `source/target`，不再重复识别。
    - 当用户在“识别为”快捷入口切换语言检测器时，会更新 `Settings.LanguageDetector` 并跳过缓存重新翻译；识别状态仍由本次翻译流程按实际检测结果刷新。
    - 当用户在“识别为”后面的识别结果上下拉选择语种时，本次主翻译会跳过缓存并强制以所选语种作为 `source` 执行一次。
    - 腾讯语言检测官方服务已停止，`Tencent` 不再作为可选检测器参与运行。

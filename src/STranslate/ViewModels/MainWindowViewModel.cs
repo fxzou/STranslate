@@ -188,8 +188,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     private sealed record TranslationLanguageContext(
-        LangEnum CacheSource,
-        LangEnum CacheTarget,
         LangEnum EffectiveSource,
         LangEnum EffectiveTarget);
 
@@ -782,19 +780,23 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (enabledSvcs.Count == 0)
             return null;
 
+        // 语种识别必须先于缓存查询：缓存键使用本次实际参与翻译的源/目标语种。
+        // 若按操作快照里的配置语种查询，简化语言模式切换目标语种、或调整「相同语言目标」后
+        // 仍会命中旧语种的结果，导致新语言翻译发起不了。
+        var context = await ResolveTranslationLanguageContextAsync(
+            operation,
+            forcedSourceLanguage);
+
         HistoryModel? history = null;
         var uncachedSvcs = new List<Service>(enabledSvcs);
 
-        // 尝试从缓存加载。
-        // 简化语言模式的目标语种由识别出的源语种与 Settings.SimpleLanguageTargetLang 决定，
-        // 无法用「文本 + 操作快照里的配置语种」表达缓存键；若照旧查询，切换目标语种后仍会
-        // 命中旧语种的结果，导致新语言翻译发起不了，因此该模式跳过缓存读取。
-        if (checkCacheFirst && Settings.HistoryLimit > 0 && !Settings.SimpleLanguageMode)
+        // 尝试从缓存加载
+        if (checkCacheFirst && Settings.HistoryLimit > 0)
         {
             history = await _sqlService.GetDataAsync(
                 operation.Text,
-                operation.SourceLang.ToString(),
-                operation.TargetLang.ToString());
+                context.EffectiveSource.ToString(),
+                context.EffectiveTarget.ToString());
             operation.CancellationToken.ThrowIfCancellationRequested();
 
             if (history != null)
@@ -811,11 +813,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (uncachedSvcs.Count == 0)
             return history;
 
-        var context = await ResolveTranslationLanguageContextAsync(
-            operation,
-            forcedSourceLanguage);
-
-        history ??= CreateHistoryModel(operation.Text, context.CacheSource, context.CacheTarget);
+        history ??= CreateHistoryModel(operation.Text, context.EffectiveSource, context.EffectiveTarget);
         ApplyEffectiveLanguages(history, context.EffectiveSource, context.EffectiveTarget);
 
         await ExecuteTranslationForServicesAsync(
@@ -875,8 +873,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
             var history = await _sqlService.GetDataAsync(
                 operation.Text,
-                operation.SourceLang.ToString(),
-                operation.TargetLang.ToString());
+                context.EffectiveSource.ToString(),
+                context.EffectiveTarget.ToString());
             operation.CancellationToken.ThrowIfCancellationRequested();
             if (!operation.IsCurrent(resultChannel))
                 return;
@@ -886,7 +884,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 if (!createIfMissing)
                     return;
 
-                history = CreateHistoryModel(operation.Text, context.CacheSource, context.CacheTarget);
+                history = CreateHistoryModel(operation.Text, context.EffectiveSource, context.EffectiveTarget);
             }
 
             ApplyEffectiveLanguages(history, context.EffectiveSource, context.EffectiveTarget);
@@ -2774,13 +2772,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         if (forcedSourceLanguage is LangEnum forcedSource && forcedSource != LangEnum.Auto)
         {
+            var forcedTarget = LanguageDetector.GetTargetLanguage(forcedSource, operation.TargetLang);
             operation.PublishIdentifiedLanguage(
                 () => ApplyIdentifiedLanguageState(CreateDetectedIdentifiedLanguageState(forcedSource)));
-            return CreateTranslationLanguageContext(
-                operation.SourceLang,
-                operation.TargetLang,
-                forcedSource,
-                LanguageDetector.GetTargetLanguage(forcedSource, operation.TargetLang));
+            return CreateTranslationLanguageContext(forcedSource, forcedTarget);
         }
 
         var (_, source, target) = await LanguageDetector
@@ -2795,11 +2790,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 () => operation.PublishIdentifiedLanguage(FinishProcess))
             .ConfigureAwait(false);
 
-        return CreateTranslationLanguageContext(
-            operation.SourceLang,
-            operation.TargetLang,
-            source,
-            target);
+        return CreateTranslationLanguageContext(source, target);
     }
 
     private IdentifiedLanguageState CreateCacheIdentifiedLanguageState(HistoryModel history)
@@ -2821,11 +2812,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         => new(IdentifiedLanguageStateKind.Detected, language);
 
     private static TranslationLanguageContext CreateTranslationLanguageContext(
-        LangEnum cacheSource,
-        LangEnum cacheTarget,
         LangEnum effectiveSource,
         LangEnum effectiveTarget)
-        => new(cacheSource, cacheTarget, effectiveSource, effectiveTarget);
+        => new(effectiveSource, effectiveTarget);
 
     private void UpdateCaret()
     {
