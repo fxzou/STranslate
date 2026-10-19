@@ -785,8 +785,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         HistoryModel? history = null;
         var uncachedSvcs = new List<Service>(enabledSvcs);
 
-        // 尝试从缓存加载
-        if (checkCacheFirst && Settings.HistoryLimit > 0)
+        // 尝试从缓存加载。
+        // 简化语言模式的目标语种由识别出的源语种与 Settings.SimpleLanguageTargetLang 决定，
+        // 无法用「文本 + 操作快照里的配置语种」表达缓存键；若照旧查询，切换目标语种后仍会
+        // 命中旧语种的结果，导致新语言翻译发起不了，因此该模式跳过缓存读取。
+        if (checkCacheFirst && Settings.HistoryLimit > 0 && !Settings.SimpleLanguageMode)
         {
             history = await _sqlService.GetDataAsync(
                 operation.Text,
