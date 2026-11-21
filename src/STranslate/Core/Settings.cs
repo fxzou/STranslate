@@ -102,9 +102,19 @@ public partial class Settings : ObservableObject
 
     [ObservableProperty] public partial int HttpTimeout { get; set; } = 30;
 
+    /// <summary>
+    /// 音频播放前的静音预热时长，单位：毫秒。0 表示关闭。
+    /// </summary>
+    [ObservableProperty] public partial int AudioPlaybackWarmupMs { get; set; } = 0;
+
     [ObservableProperty] public partial LangEnum SourceLang { get; set; } = LangEnum.Auto;
 
     [ObservableProperty] public partial LangEnum TargetLang { get; set; } = LangEnum.Auto;
+
+    /// <summary>
+    /// 翻译请求发送前的文本替换配置。
+    /// </summary>
+    [ObservableProperty] public partial TextPreprocessingSettings TextPreprocessing { get; set; } = new();
 
     /// <summary>
     ///     语种识别类型
@@ -270,6 +280,8 @@ public partial class Settings : ObservableObject
     /// </summary>
     [ObservableProperty] public partial TextSeparatorHandleScope TextSeparatorHandleScopes { get; set; } = TextSeparatorHandleScope.Crossword;
 
+    [ObservableProperty] public partial bool PreferUiaForSelectedText { get; set; } = true;
+
     /// <summary>
     /// 划词后等待剪贴板写入文本的最长时间（毫秒）。
     /// </summary>
@@ -325,7 +337,7 @@ public partial class Settings : ObservableObject
 
     #region Image Translate Settings
 
-    [ObservableProperty] public partial ImageTranslateWindowMode ImageTranslateWindowMode { get; set; } = ImageTranslateWindowMode.Standalone;
+    [ObservableProperty] public partial ImageTranslateWindowMode ImageTranslateWindowMode { get; set; } = ImageTranslateWindowMode.Compact;
     [ObservableProperty] public partial bool IsImTranShowingAnnotated { get; set; } = false;
     [ObservableProperty] public partial bool IsImTranShowingTextControl { get; set; } = false;
     [ObservableProperty] public partial LangEnum ImageTranslateOcrLanguage { get; set; } = LangEnum.Auto;
@@ -433,6 +445,15 @@ public partial class Settings : ObservableObject
         }
     }
 
+    partial void OnAudioPlaybackWarmupMsChanged(int value)
+    {
+        var normalized = Math.Clamp(value, 0, 5000);
+        if (normalized != value)
+        {
+            AudioPlaybackWarmupMs = normalized;
+        }
+    }
+
     #endregion
 
     #region Public Methods
@@ -452,7 +473,8 @@ public partial class Settings : ObservableObject
                 e.PropertyName == nameof(MainWindowMaxHeightRatio) ||
                 e.PropertyName == nameof(AutoTranslateDelayMs) ||
                 e.PropertyName == nameof(TopEdgeAutoHideDelayMs) ||
-                e.PropertyName == nameof(SelectedTextFetchTimeoutMs))
+                e.PropertyName == nameof(SelectedTextFetchTimeoutMs) ||
+                e.PropertyName == nameof(AudioPlaybackWarmupMs))
                 SaveWithDebounce();
             else
                 Save();

@@ -577,6 +577,20 @@
                         OnContent="{DynamicResource Enable}" />
                 </ui:SettingsCard>
 
+                <ui:SettingsCard Header="{DynamicResource General_TextPreprocessing}"
+                    Description="{DynamicResource General_TextPreprocessingDescription}">
+                    <ui:SettingsCard.HeaderIcon>
+                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.TextEditStyle_20_Regular}" />
+                    </ui:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding TextPreprocessingStatus}" ToolTip="{Binding TextPreprocessingStatus}"
+                        MaxWidth="200" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,12,0" Opacity="0.7" />
+                    <Button Content="{DynamicResource General_TextPreprocessingManage}"
+                        Command="{Binding EditTextPreprocessingCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+                    </StackPanel>
+                </ui:SettingsCard>
+
                 <ui:SettingsExpander
                     d:IsExpanded="True"
                     Description="{DynamicResource General_TextSeparatorHandleTypeDescription}"
@@ -682,6 +696,16 @@
                             SelectedValuePath="Value" />
                     </ui:SettingsCard>
 
+                    <ui:SettingsCard Description="{DynamicResource General_PreferUiaForSelectedTextDescription}" Header="{DynamicResource General_PreferUiaForSelectedText}">
+                        <ui:SettingsCard.HeaderIcon>
+                            <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.SelectAllOn_20_Regular}" />
+                        </ui:SettingsCard.HeaderIcon>
+                        <ui:ToggleSwitch
+                            IsOn="{Binding Settings.PreferUiaForSelectedText, Mode=TwoWay}"
+                            OffContent="{DynamicResource Disable}"
+                            OnContent="{DynamicResource Enable}" />
+                    </ui:SettingsCard>
+
                     <ui:SettingsCard Description="{DynamicResource General_SelectedTextFetchTimeoutDescription}" Header="{DynamicResource General_SelectedTextFetchTimeout}">
                         <ui:SettingsCard.HeaderIcon>
                             <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Timer_24_Regular}" />
@@ -719,6 +743,21 @@
                             OnContent="{DynamicResource Enable}" />
                     </ui:SettingsCard>
                 </control:CardGroup>
+
+                <ui:SettingsCard Description="{DynamicResource General_AudioPlaybackWarmupDescription}" Header="{DynamicResource General_AudioPlaybackWarmup}">
+                    <ui:SettingsCard.HeaderIcon>
+                        <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Timer_24_Regular}" />
+                    </ui:SettingsCard.HeaderIcon>
+                    <ui:NumberBox
+                        MinWidth="120"
+                        LargeChange="500"
+                        Maximum="5000"
+                        Minimum="0"
+                        SmallChange="100"
+                        SpinButtonPlacementMode="Inline"
+                        ValidationMode="InvalidInputOverwritten"
+                        Value="{Binding Settings.AudioPlaybackWarmupMs}" />
+                </ui:SettingsCard>
 
                 <ui:SettingsCard Description="{DynamicResource General_ImageQualityDescription}" Header="{DynamicResource General_ImageQuality}">
                     <ui:SettingsCard.HeaderIcon>
