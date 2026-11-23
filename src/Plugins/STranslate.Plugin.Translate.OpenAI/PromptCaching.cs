@@ -164,7 +164,7 @@ internal static partial class PromptCaching
 /// <summary>
 /// 由模型名称推断出的服务商。用于决定是否在请求中附带缓存字段。
 /// </summary>
-internal enum LlmProvider
+public enum LlmProvider
 {
     /// <summary>无法识别的模型，按最保守的方式处理：不附带任何缓存字段。</summary>
     Unknown,
