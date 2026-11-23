@@ -81,7 +81,7 @@ internal static class OpenAIProtocol
     /// 两种 API 的文本块类型名不同：Chat Completions 用 <c>text</c>，
     /// Responses 用 <c>input_text</c>。
     /// </remarks>
-    private static JsonArray? BuildPayloadWithCacheBreakpoint(
+    private static JsonNode? BuildPayloadWithCacheBreakpoint(
         OpenAIApiMode apiMode,
         IReadOnlyCollection<PromptItem> messages)
     {
