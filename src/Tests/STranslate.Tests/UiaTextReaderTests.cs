@@ -50,6 +50,13 @@ public class UiaTextReaderTests
         {
             Interlocked.Increment(ref calls);
             started.SetResult();
+
+            // 取消必须发生在读取委托返回之前：若留给测试主体去取消，
+            // 它要先等 started 的续体被调度，机器繁忙时可能晚于 250ms 超时窗口，
+            // 导致走 TimeoutException 分支而不是取消分支，断言随机失败。
+            if (cancel)
+                cancellation.Cancel();
+
             release.Wait();
             finished.SetResult();
             return "迟到的选区";
@@ -61,7 +68,6 @@ public class UiaTextReaderTests
             await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
             if (cancel)
             {
-                cancellation.Cancel();
                 await Assert.ThrowsAnyAsync<OperationCanceledException>(() => capture);
             }
             else
