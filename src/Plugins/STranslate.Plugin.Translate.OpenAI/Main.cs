@@ -172,9 +172,11 @@ public class Main : LlmTranslatePluginBase
         var temperature = Math.Clamp(Settings.Temperature, 0, 2);
 
         // 让每次请求都能复用同一段稳定前缀的缓存：
-        // 显式断点只在支持它的模型上发送，其余情况仅依靠隐式缓存与稳定的 prompt_cache_key。
-        // 地址可能指向任意兼容服务，因此只有识别为 OpenAI 模型时才附带缓存字段。
-        var cacheable = Settings.EnablePromptCaching && PromptCaching.IsOpenAIModel(model);
+        // 先按模型名认出服务商，再决定是否附带缓存字段——各家实现不同，
+        // 只有 OpenAI 官方接口认 prompt_cache_key，其余服务多传字段会被拒收。
+        // 显式断点更进一步，仅 GPT-5.6 及以后支持。
+        var provider = PromptCaching.DetectProvider(model);
+        var cacheable = Settings.EnablePromptCaching && PromptCaching.SupportsRequestCacheFields(provider);
         var messageList = messages as IReadOnlyList<PromptItem> ?? messages.ToList();
         var stablePrefixCount = cacheable ? PromptCaching.GetStablePrefixCount(messageList) : 0;
         var useExplicitBreakpoint = cacheable &&

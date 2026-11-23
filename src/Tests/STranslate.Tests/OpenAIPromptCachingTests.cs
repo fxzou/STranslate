@@ -24,6 +24,8 @@ public class OpenAIPromptCachingTests
     [InlineData("gpt-4.1-mini", false)]
     [InlineData("o3", false)]
     [InlineData("deepseek-chat", false)]
+    [InlineData("gemini-2.5-pro", false)]
+    [InlineData("openai/gpt-5.6-sol", true)]
     [InlineData("", false)]
     [InlineData(null, false)]
     public void SupportsExplicitBreakpoint_OnlyFromGpt56(string? model, bool expected)
@@ -32,24 +34,54 @@ public class OpenAIPromptCachingTests
     }
 
     [Theory]
+    [InlineData("gpt-4o", LlmProvider.OpenAI)]
+    [InlineData("gpt-5.6-sol", LlmProvider.OpenAI)]
+    [InlineData("GPT-4.1-mini", LlmProvider.OpenAI)]
+    [InlineData("o1", LlmProvider.OpenAI)]
+    [InlineData("o3-mini", LlmProvider.OpenAI)]
+    [InlineData("o4-mini", LlmProvider.OpenAI)]
+    [InlineData("chatgpt-4o-latest", LlmProvider.OpenAI)]
+    [InlineData("deepseek-chat", LlmProvider.DeepSeek)]
+    [InlineData("deepseek-reasoner", LlmProvider.DeepSeek)]
+    [InlineData("gemini-2.5-pro", LlmProvider.Gemini)]
+    [InlineData("gemini-2.5-flash", LlmProvider.Gemini)]
+    [InlineData("claude-3-5-sonnet", LlmProvider.Anthropic)]
+    [InlineData("qwen-max", LlmProvider.Qwen)]
+    [InlineData("glm-4", LlmProvider.Zhipu)]
+    [InlineData("kimi-k2", LlmProvider.Moonshot)]
+    [InlineData("mistral-large-latest", LlmProvider.Mistral)]
+    [InlineData("", LlmProvider.Unknown)]
+    [InlineData(null, LlmProvider.Unknown)]
+    public void DetectProvider_MatchesModelFamilies(string? model, LlmProvider expected)
+    {
+        Assert.Equal(expected, PromptCaching.DetectProvider(model));
+    }
+
+    [Theory]
+    [InlineData("openai/gpt-4o", LlmProvider.OpenAI)]
+    [InlineData("deepseek/deepseek-chat", LlmProvider.DeepSeek)]
+    [InlineData("google/gemini-2.5-pro", LlmProvider.Gemini)]
+    public void DetectProvider_IgnoresGatewayPrefix(string model, LlmProvider expected)
+    {
+        // 聚合网关常以「厂商/模型」形式命名，前缀不应干扰识别。
+        Assert.Equal(expected, PromptCaching.DetectProvider(model));
+    }
+
+    [Theory]
     [InlineData("gpt-4o", true)]
-    [InlineData("gpt-5.6-sol", true)]
-    [InlineData("GPT-4.1-mini", true)]
-    [InlineData("o1", true)]
     [InlineData("o3-mini", true)]
-    [InlineData("o4-mini", true)]
     [InlineData("deepseek-chat", false)]
-    [InlineData("deepseek-reasoner", false)]
     [InlineData("gemini-2.5-pro", false)]
-    [InlineData("gemini-2.5-flash", false)]
+    [InlineData("claude-3-5-sonnet", false)]
     [InlineData("glm-4", false)]
     [InlineData("qwen-max", false)]
-    [InlineData("claude-3-5-sonnet", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
-    public void IsOpenAIModel_OnlyRecognizesOpenAIFamilies(string? model, bool expected)
+    public void SupportsRequestCacheFields_OnlyForOpenAI(string? model, bool expected)
     {
-        Assert.Equal(expected, PromptCaching.IsOpenAIModel(model));
+        // 只有 OpenAI 官方接口认 prompt_cache_key，其余服务多传字段有被拒收的风险。
+        var provider = PromptCaching.DetectProvider(model);
+        Assert.Equal(expected, PromptCaching.SupportsRequestCacheFields(provider));
     }
 
     [Fact]

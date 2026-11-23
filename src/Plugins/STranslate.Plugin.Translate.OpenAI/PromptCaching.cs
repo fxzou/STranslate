@@ -29,22 +29,65 @@ internal static partial class PromptCaching
     private static partial Regex OSeriesRegex();
 
     /// <summary>
-    /// 判断模型是否属于会接受缓存字段的 OpenAI 模型。
+    /// 依据模型名称推断提供该模型的服务商。
     /// </summary>
     /// <remarks>
-    /// 插件允许把地址指向任意 OpenAI 兼容服务，而那些服务（DeepSeek、GLM、Qwen 等）
-    /// 往往不认识 <c>prompt_cache_key</c> 之类的字段，直接发送可能被判为非法请求。
-    /// 因此只有识别出的 OpenAI 模型才附带缓存字段，其余模型保持请求体原样。
+    /// 同一个插件要同时服务官方 OpenAI 与各类兼容端点，而各家对缓存的实现方式并不相同：
+    /// OpenAI 需要在请求里声明 <c>prompt_cache_key</c> 与显式断点，DeepSeek、Gemini 等则是
+    /// 服务端按前缀自动缓存、多传字段反而会被判为非法请求。因此这里先按模型名认出服务商，
+    /// 再由 <see cref="SupportsRequestCacheFields"/> 决定是否附带缓存字段。
+    /// 识别不出的模型按 <see cref="LlmProvider.Unknown"/> 处理，保持请求体原样最安全。
     /// </remarks>
-    internal static bool IsOpenAIModel(string? model)
+    internal static LlmProvider DetectProvider(string? model)
     {
-        if (string.IsNullOrWhiteSpace(model))
-            return false;
+        var name = NormalizeModelName(model);
+        if (name.Length == 0)
+            return LlmProvider.Unknown;
 
-        var name = model.Trim();
-        return name.Contains("gpt", StringComparison.OrdinalIgnoreCase) ||
-               OSeriesRegex().IsMatch(name);
+        if (name.Contains("deepseek", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.DeepSeek;
+
+        if (name.StartsWith("gemini", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("gemma", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Gemini;
+
+        if (name.Contains("claude", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Anthropic;
+
+        if (name.Contains("qwen", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("qwq", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Qwen;
+
+        if (name.Contains("glm", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Zhipu;
+
+        if (name.Contains("moonshot", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("kimi", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Moonshot;
+
+        if (name.Contains("mistral", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("mixtral", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("codestral", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.Mistral;
+
+        if (name.Contains("gpt", StringComparison.OrdinalIgnoreCase) ||
+            OSeriesRegex().IsMatch(name) ||
+            name.StartsWith("chatgpt", StringComparison.OrdinalIgnoreCase))
+            return LlmProvider.OpenAI;
+
+        return LlmProvider.Unknown;
     }
+
+    /// <summary>
+    /// 判断该服务商是否需要在请求中附带缓存字段。
+    /// </summary>
+    /// <remarks>
+    /// 只有 OpenAI 官方接口认 <c>prompt_cache_key</c>；DeepSeek、Gemini、Claude 等
+    /// 都是服务端按前缀自动缓存，多传字段只会带来被拒收的风险。
+    /// 注意这不代表它们没有缓存：只要能保持稳定前缀，它们同样会命中各自的隐式缓存。
+    /// </remarks>
+    internal static bool SupportsRequestCacheFields(LlmProvider provider) =>
+        provider == LlmProvider.OpenAI;
 
     /// <summary>
     /// 判断模型是否支持显式缓存断点（GPT-5.6 及以后）。
@@ -52,10 +95,10 @@ internal static partial class PromptCaching
     /// </summary>
     internal static bool SupportsExplicitBreakpoint(string? model)
     {
-        if (string.IsNullOrWhiteSpace(model))
+        if (DetectProvider(model) != LlmProvider.OpenAI)
             return false;
 
-        var match = ModelVersionRegex().Match(model.Trim());
+        var match = ModelVersionRegex().Match(NormalizeModelName(model));
         if (!match.Success)
             return false;
 
@@ -63,6 +106,20 @@ internal static partial class PromptCaching
         var minor = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : 0;
 
         return major > 5 || (major == 5 && minor >= 6);
+    }
+
+    /// <summary>
+    /// 归一化模型名：去掉首尾空白，并剥掉「openai/gpt-4o」「deepseek/deepseek-chat」
+    /// 这类聚合网关的厂商前缀，使后续判断只看模型本身。
+    /// </summary>
+    private static string NormalizeModelName(string? model)
+    {
+        if (string.IsNullOrWhiteSpace(model))
+            return string.Empty;
+
+        var name = model.Trim();
+        var slash = name.LastIndexOf('/');
+        return slash >= 0 && slash < name.Length - 1 ? name[(slash + 1)..] : name;
     }
 
     /// <summary>
@@ -102,4 +159,29 @@ internal static partial class PromptCaching
     private static bool IsStableRole(string role) =>
         string.Equals(role, "system", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(role, "developer", StringComparison.OrdinalIgnoreCase);
+}
+
+/// <summary>
+/// 由模型名称推断出的服务商。用于决定是否在请求中附带缓存字段。
+/// </summary>
+internal enum LlmProvider
+{
+    /// <summary>无法识别的模型，按最保守的方式处理：不附带任何缓存字段。</summary>
+    Unknown,
+    /// <summary>OpenAI 官方接口，支持 <c>prompt_cache_key</c> 与显式断点。</summary>
+    OpenAI,
+    /// <summary>DeepSeek，服务端按前缀自动缓存，无需请求字段。</summary>
+    DeepSeek,
+    /// <summary>Google Gemini 的 OpenAI 兼容层，服务端自动缓存。</summary>
+    Gemini,
+    /// <summary>Anthropic Claude，服务端自动缓存。</summary>
+    Anthropic,
+    /// <summary>阿里通义千问。</summary>
+    Qwen,
+    /// <summary>智谱 GLM。</summary>
+    Zhipu,
+    /// <summary>月之暗面 Kimi。</summary>
+    Moonshot,
+    /// <summary>Mistral。</summary>
+    Mistral,
 }

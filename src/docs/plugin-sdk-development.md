@@ -125,9 +125,9 @@
   - 设置页只展示停用说明，不再提供连通性验证入口。
 - OpenAI 内置翻译：
   - 术语库：`Context.UseGlossary` 为真时，`GlossaryPrompt.Apply(...)` 把术语文本并入开头那条 `system` / `developer` 消息（首条不是指令角色时才补一条 `system`），不新增 system 消息，理由见「全局术语库」小节。术语渲染内容只由术语本身决定，保证跨请求稳定。
-  - 提示词缓存（`Settings.EnablePromptCaching`，默认开启）：只有识别为 OpenAI 模型（`PromptCaching.IsOpenAIModel`）时才附带缓存字段，避免把 `prompt_cache_key` 发给不认识它的兼容服务。
+  - 提示词缓存（`Settings.EnablePromptCaching`，默认开启）：先由 `PromptCaching.DetectProvider` 按**模型名**推断服务商（`LlmProvider`：OpenAI / DeepSeek / Gemini / Anthropic / Qwen / Zhipu / Moonshot / Mistral / Unknown），再由 `SupportsRequestCacheFields` 决定是否附带缓存字段——只有 OpenAI 官方接口认 `prompt_cache_key`，其余服务都是服务端按前缀自动缓存，多传字段反而有被拒收的风险。模型名形如 `厂商/模型`（聚合网关）时前缀会被剥离后再判断，识别不出的模型按 `Unknown` 处理、请求体保持原样。
     - `PromptCaching.CreateCacheKey` 对开头连续 `system` / `developer` 消息（稳定前缀）做 SHA256，得到稳定的 `prompt_cache_key`，前缀相同则键相同。
-    - `PromptCaching.SupportsExplicitBreakpoint` 仅在 GPT-5.6 及以后返回 true；此时 `OpenAIProtocol.CreateRequest` 会把稳定前缀的最后一条改写成内容块数组并打上 `prompt_cache_breakpoint`，同时发送 `prompt_cache_options.mode = "explicit"`。
+    - `PromptCaching.SupportsExplicitBreakpoint` 仅在服务商为 OpenAI 且版本为 GPT-5.6 及以后时返回 true；此时 `OpenAIProtocol.CreateRequest` 会把稳定前缀的最后一条改写成内容块数组并打上 `prompt_cache_breakpoint`，同时发送 `prompt_cache_options.mode = "explicit"`。
     - 显式模式下不发送断点就发 `prompt_cache_options` 是非法组合，因此 `CreateRequest` 内部用 `applyBreakpoint = useExplicitCacheBreakpoint && 稳定前缀非空` 兜底，前缀为空时整体退回普通请求。
     - 待翻译原文永远在稳定前缀之外，否则前缀每次变化，缓存永不命中。
 - 金山词霸内置词典：
@@ -162,7 +162,7 @@
   5. 如果属于官方内置或预装插件，将 `plugin.json` 中的 `PluginID` 添加到 `STranslate/Core/Constant.cs` 的 `PrePluginIDs`。
 - 增加插件能力参数：先扩展插件 `Settings` 模型，再在 `GetSettingUI()` 对应 VM 中读写并调用 `SaveSettingStorage`。
 - 接入全局术语库：LLM 插件读 `Context.UseGlossary` 判断当前服务是否启用，再用 `Context.Glossary.GetEffectiveEntries()` 取术语，渲染成一条 `system` 消息插在 `messages[0]`；渲染结果必须只由术语内容决定，否则会破坏提示词缓存的前缀稳定性。
-- 接入提示词缓存：只在识别为 OpenAI 模型时附加快照字段（`prompt_cache_key`），显式断点仅在支持它的模型上发送，且断点位置固定在稳定前缀末尾。
+- 接入提示词缓存：先用 `PromptCaching.DetectProvider` 按模型名认出服务商，只为需要请求字段的服务商（当前仅 OpenAI）附加 `prompt_cache_key`；显式断点进一步要求 GPT-5.6 及以上，且断点位置固定在稳定前缀末尾。
 - 处理长任务取消：所有 `TranslateAsync` / `RecognizeAsync` / `SaveAsync` 应尊重 `CancellationToken`。
 - 兼容升级：保持 `PluginID` 稳定，升级仅提升 `Version`，避免被识别为新插件。
 - 接入大模型或 SSE 服务：优先使用 `StreamPostAsyncEnumerable()`，按行解析服务返回，避免在插件里重复实现 `HttpClient` 流读取。
