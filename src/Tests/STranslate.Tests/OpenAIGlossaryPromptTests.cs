@@ -163,7 +163,7 @@ public class OpenAIGlossaryPromptTests
 
         GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
 
-        Assert.Single(messages.Where(message =>
-            string.Equals(message.Role, "system", StringComparison.OrdinalIgnoreCase)));
+        Assert.Single(messages, message =>
+            string.Equals(message.Role, "system", StringComparison.OrdinalIgnoreCase));
     }
 }
