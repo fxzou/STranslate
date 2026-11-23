@@ -9,6 +9,6 @@
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters">پارامترهای اضافی درخواست</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description">یک شیء JSON وارد کنید تا با ریشه درخواست ادغام شود. فیلدهای داخلی تولیدشده توسط افزونه قابل بازنویسی نیستند.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_SendTemperature">ارسال پارامتر دما</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching">کش پرامپت</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description">ارسال prompt_cache_key پایدار و علامت‌گذاری پیشوند قابل استفادهٔ مجدد system به‌عنوان نقطهٔ کش، تا درخواست‌های تکراری بتوانند از پیشوند کش‌شده استفاده کنند. اگر سرویس سازگار شخص ثالث این فیلدها را نمی‌پذیرد، این گزینه را خاموش کنید.</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_UseGlossary">استفاده از واژه‌نامه</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_UseGlossary_Description">واژه‌نامهٔ سراسری را به پرامپت تزریق می‌کند تا مدل از معادل‌های تعیین‌شده پیروی کند. این همان گزینهٔ واژه‌نامهٔ آن سرویس در پنجرهٔ اصلی است.</sys:String>
 </ResourceDictionary>

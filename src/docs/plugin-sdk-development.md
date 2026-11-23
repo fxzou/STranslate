@@ -67,10 +67,10 @@
 - `LangEnum`：语言枚举，当前包含 `Uzbek`、`Uyghur`；新增语言时需要同步主程序语言检测、内置插件语言映射、本地化文本与双向文本布局规则。
 
 ### 全局术语库
-- 主程序维护一份**全局术语**，与语言方向无关，所有翻译服务共享。术语存于 `GlossarySettings.json`，管理入口是设置页的术语库页面。
+- 主程序维护一份**全局术语**，与语言方向无关，所有翻译服务共享。术语存于 `GlossarySettings.json`，管理入口是设置页的术语库页面，支持按 `[{"SourceText": "...", "TargetText": "..."}]` 格式（UTF-8，可带 BOM）导入导出。
 - 插件通过 `IPluginContext` 的两个成员接入：
   - `IGlossaryProvider Glossary`：`Entries` 为原始条目，`GetEffectiveEntries()` 返回过滤空白并 `Trim` 后的副本，直接用于拼提示词。
-  - `bool UseGlossary`：**当前服务实例**是否启用了术语库，取自该服务的 `TranslationOptions.UseGlossary`，由用户在服务右键菜单开关。
+  - `bool UseGlossary { get; set; }`：**当前服务实例**是否启用了术语库，取自该服务的 `TranslationOptions.UseGlossary`。读写是同一份配置——主程序的服务右键菜单与插件设置页都改它，插件侧赋值会立即持久化。
 - 正确的注入姿势是「**并入开头那条指令消息**，只在没有指令消息时才补一条 system」：`UseGlossary` 为真且 `GetEffectiveEntries()` 非空时，把术语文本拼在 `messages[0]` 的 `Content` 之前（`role` 为 `system` / `developer` 都算指令消息）；若首条不是指令角色，才 `Insert(0, new PromptItem("system", text))`。
   - **不要**额外插入一条 system 消息。Gemini 的 OpenAI 兼容层只接受一条 system 指令，多条时只保留最后一条，额外那条会被静默丢弃；DeepSeek 要求 system 位于对话开头，多插可能直接返回 `System message must be at the beginning.`。并入首条后术语仍位于最前、仍是跨请求不变的稳定前缀，提示词缓存同样受益。
 - 术语内容必须只由术语本身决定（顺序、分隔符、措辞稳定），否则每次请求的前缀都不同，提示词缓存永远不命中。
@@ -125,7 +125,7 @@
   - 设置页只展示停用说明，不再提供连通性验证入口。
 - OpenAI 内置翻译：
   - 术语库：`Context.UseGlossary` 为真时，`GlossaryPrompt.Apply(...)` 把术语文本并入开头那条 `system` / `developer` 消息（首条不是指令角色时才补一条 `system`），不新增 system 消息，理由见「全局术语库」小节。术语渲染内容只由术语本身决定，保证跨请求稳定。
-  - 提示词缓存（`Settings.EnablePromptCaching`，默认开启）：先由 `PromptCaching.DetectProvider` 按**模型名**推断服务商（`LlmProvider`：OpenAI / DeepSeek / Gemini / Anthropic / Qwen / Zhipu / Moonshot / Mistral / Unknown），再由 `SupportsRequestCacheFields` 决定是否附带缓存字段——只有 OpenAI 官方接口认 `prompt_cache_key`，其余服务都是服务端按前缀自动缓存，多传字段反而有被拒收的风险。模型名形如 `厂商/模型`（聚合网关）时前缀会被剥离后再判断，识别不出的模型按 `Unknown` 处理、请求体保持原样。
+  - 提示词缓存（自动启用，无开关）：先由 `PromptCaching.DetectProvider` 按**模型名**推断服务商（`LlmProvider`：OpenAI / DeepSeek / Gemini / Anthropic / Qwen / Zhipu / Moonshot / Mistral / Unknown），再由 `SupportsRequestCacheFields` 决定是否附带缓存字段——只有 OpenAI 官方接口认 `prompt_cache_key`，其余服务都是服务端按前缀自动缓存，多传字段反而有被拒收的风险。模型名形如 `厂商/模型`（聚合网关）时前缀会被剥离后再判断，识别不出的模型按 `Unknown` 处理、请求体保持原样。
     - `PromptCaching.CreateCacheKey` 对开头连续 `system` / `developer` 消息（稳定前缀）做 SHA256，得到稳定的 `prompt_cache_key`，前缀相同则键相同。
     - `PromptCaching.SupportsExplicitBreakpoint` 仅在服务商为 OpenAI 且版本为 GPT-5.6 及以后时返回 true；此时 `OpenAIProtocol.CreateRequest` 会把稳定前缀的最后一条改写成内容块数组并打上 `prompt_cache_breakpoint`，同时发送 `prompt_cache_options.mode = "explicit"`。
     - 显式模式下不发送断点就发 `prompt_cache_options` 是非法组合，因此 `CreateRequest` 内部用 `applyBreakpoint = useExplicitCacheBreakpoint && 稳定前缀非空` 兜底，前缀为空时整体退回普通请求。
@@ -161,7 +161,7 @@
   4. 在 `Init` 中加载配置并在设置 UI 中可编辑。
   5. 如果属于官方内置或预装插件，将 `plugin.json` 中的 `PluginID` 添加到 `STranslate/Core/Constant.cs` 的 `PrePluginIDs`。
 - 增加插件能力参数：先扩展插件 `Settings` 模型，再在 `GetSettingUI()` 对应 VM 中读写并调用 `SaveSettingStorage`。
-- 接入全局术语库：LLM 插件读 `Context.UseGlossary` 判断当前服务是否启用，再用 `Context.Glossary.GetEffectiveEntries()` 取术语，渲染成一条 `system` 消息插在 `messages[0]`；渲染结果必须只由术语内容决定，否则会破坏提示词缓存的前缀稳定性。
+- 接入全局术语库：LLM 插件读 `Context.UseGlossary` 判断当前服务是否启用（该属性可写，插件设置页的开关就写它），再用 `Context.Glossary.GetEffectiveEntries()` 取术语，**并入** `messages[0]` 那条指令消息而不是另加一条 `system`；渲染结果必须只由术语内容决定，否则会破坏提示词缓存的前缀稳定性。
 - 接入提示词缓存：先用 `PromptCaching.DetectProvider` 按模型名认出服务商，只为需要请求字段的服务商（当前仅 OpenAI）附加 `prompt_cache_key`；显式断点进一步要求 GPT-5.6 及以上，且断点位置固定在稳定前缀末尾。
 - 处理长任务取消：所有 `TranslateAsync` / `RecognizeAsync` / `SaveAsync` 应尊重 `CancellationToken`。
 - 兼容升级：保持 `PluginID` 稳定，升级仅提升 `Version`，避免被识别为新插件。

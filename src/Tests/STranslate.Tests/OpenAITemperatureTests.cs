@@ -30,10 +30,21 @@ public class OpenAITemperatureTests
     public class StorageProxy : System.Reflection.DispatchProxy
     {
         public int Saves;
+
         protected override object? Invoke(System.Reflection.MethodInfo? method, object?[]? args)
         {
-            if (method!.Name == "SaveSettingStorage") Saves++;
-            return null;
+            switch (method!.Name)
+            {
+                case "SaveSettingStorage":
+                    Saves++;
+                    return null;
+                // SettingsViewModel 构造时会读取服务级术语库开关，
+                // 这里必须返回一个真正的 bool，否则拆箱 null 会抛异常。
+                case "get_UseGlossary":
+                    return false;
+                default:
+                    return null;
+            }
         }
     }
 

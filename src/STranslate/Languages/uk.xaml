@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">Очистити всі терміни</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">Очистити всі терміни? Цю дію не можна скасувати.</sys:String>
     <sys:String x:Key="GlossaryUsageHint">Передаються лише записи із заповненими обома полями; служба з увімкненим глосарієм отримує весь глосарій під час кожного перекладу.</sys:String>
+    <sys:String x:Key="GlossaryImport">Імпортувати терміни</sys:String>
+    <sys:String x:Key="GlossaryExport">Експортувати терміни</sys:String>
+    <sys:String x:Key="GlossaryImportResult">Імпортовано термінів: {0}, пропущено дублікатів: {1}</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">Не вдалося імпортувати терміни</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">Вибраний файл не є коректним файлом глосарію.</sys:String>
     <sys:String x:Key="Standalone">Окреме вікно</sys:String>
     <sys:String x:Key="History">Історія</sys:String>
     <sys:String x:Key="Plugins">Плагіни</sys:String>

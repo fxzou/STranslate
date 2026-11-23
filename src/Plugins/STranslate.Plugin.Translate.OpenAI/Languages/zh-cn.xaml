@@ -10,6 +10,6 @@
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters">附加请求参数</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description">填写要合并到请求根对象的 JSON。不能覆盖插件生成的内置字段。</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_SendTemperature">发送温度参数</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching">提示词缓存</sys:String>
-    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description">发送稳定的 prompt_cache_key，并把可复用的 system 前缀标记为缓存断点，让重复请求复用已缓存的前缀。若第三方兼容服务不接受这些字段，可关闭此项。</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_UseGlossary">使用术语库</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_UseGlossary_Description">把全局术语库注入提示词，要求模型遵循既定译法。与主窗口里该服务的术语库开关是同一份配置。</sys:String>
 </ResourceDictionary>

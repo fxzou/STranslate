@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">清空全部術語</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">確定要清空全部術語嗎？此操作無法復原。</sys:String>
     <sys:String x:Key="GlossaryUsageHint">僅原文與譯文都已填寫的條目會被送出，啟用術語庫的服務每次翻譯都會收到完整術語表。</sys:String>
+    <sys:String x:Key="GlossaryImport">匯入術語</sys:String>
+    <sys:String x:Key="GlossaryExport">匯出術語</sys:String>
+    <sys:String x:Key="GlossaryImportResult">已匯入 {0} 條術語，略過 {1} 條重複項</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">匯入術語失敗</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">所選檔案不是有效的術語庫檔案。</sys:String>
     <sys:String x:Key="Standalone">獨立視窗</sys:String>
     <sys:String x:Key="History">歷史</sys:String>
     <sys:String x:Key="Plugins">外掛</sys:String>

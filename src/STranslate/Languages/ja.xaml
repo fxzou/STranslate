@@ -23,6 +23,11 @@
     <sys:String x:Key="GlossaryClearAll">すべての用語を削除</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">すべての用語を消去しますか？この操作は元に戻せません。</sys:String>
     <sys:String x:Key="GlossaryUsageHint">原文と訳語の両方が入力された項目だけが送信され、用語集を有効にしたサービスは翻訳のたびに用語集全体を受け取ります。</sys:String>
+    <sys:String x:Key="GlossaryImport">用語をインポート</sys:String>
+    <sys:String x:Key="GlossaryExport">用語をエクスポート</sys:String>
+    <sys:String x:Key="GlossaryImportResult">{0} 件の用語をインポートしました（重複 {1} 件をスキップ）</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">用語のインポートに失敗しました</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">選択したファイルは有効な用語集ファイルではありません。</sys:String>
     <sys:String x:Key="Standalone">独立ウィンドウ</sys:String>
     <sys:String x:Key="History">履歴</sys:String>
     <sys:String x:Key="Plugins">プラグイン</sys:String>

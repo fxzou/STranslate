@@ -55,10 +55,10 @@ public interface IPluginContext : IDisposable
     IGlossaryProvider Glossary { get; }
 
     /// <summary>
-    /// 当前服务实例是否启用了术语库。
-    /// 由主程序的服务配置决定，插件应据此决定是否注入术语。
+    /// 当前服务实例是否启用了术语库。插件应据此决定是否注入术语。
+    /// 与主程序里该服务的「使用术语库」开关是同一份配置，写入会立即持久化。
     /// </summary>
-    bool UseGlossary { get; }
+    bool UseGlossary { get; set; }
 
     /// <summary>
     /// 获取Prompt编辑窗口

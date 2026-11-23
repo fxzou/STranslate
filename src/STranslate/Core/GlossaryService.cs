@@ -17,6 +17,11 @@ public class GlossaryService : IGlossaryProvider
     /// </summary>
     private readonly HashSet<GlossaryEntry> _attached = [];
 
+    /// <summary>
+    /// 批量导入期间挂起持久化，避免逐条写盘。
+    /// </summary>
+    private bool _suspendSave;
+
     public GlossaryService(GlossarySettings settings)
     {
         _settings = settings;
@@ -54,6 +59,48 @@ public class GlossaryService : IGlossaryProvider
     /// </summary>
     public void Clear() => _settings.Entries.Clear();
 
+    /// <summary>
+    /// 批量导入术语。已存在的同原文同译文的条目会被跳过。
+    /// </summary>
+    /// <returns>实际新增的条目数量。</returns>
+    public int Import(IEnumerable<GlossaryEntry> entries)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+
+        var existing = _settings.Entries
+            .Select(entry => (entry.Source?.Trim(), entry.Target?.Trim()))
+            .ToHashSet();
+
+        var added = 0;
+        // 导入期间挂起逐条落盘，结束时统一保存一次。
+        _suspendSave = true;
+        try
+        {
+            foreach (var entry in entries)
+            {
+                var source = entry.Source?.Trim();
+                var target = entry.Target?.Trim();
+                if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(target))
+                    continue;
+
+                if (!existing.Add((source, target)))
+                    continue;
+
+                _settings.Entries.Add(new GlossaryEntry(source, target));
+                added++;
+            }
+        }
+        finally
+        {
+            _suspendSave = false;
+        }
+
+        if (added > 0)
+            _settings.Save();
+
+        return added;
+    }
+
     /// <inheritdoc />
     public IReadOnlyList<GlossaryEntry> GetEffectiveEntries() =>
         _settings.Entries
@@ -79,6 +126,14 @@ public class GlossaryService : IGlossaryProvider
             foreach (GlossaryEntry entry in e.NewItems)
                 Attach(entry);
 
+        SaveIfNeeded();
+    }
+
+    private void SaveIfNeeded()
+    {
+        if (_suspendSave)
+            return;
+
         _settings.Save();
     }
 
@@ -95,5 +150,5 @@ public class GlossaryService : IGlossaryProvider
         _attached.Remove(entry);
     }
 
-    private void OnEntryPropertyChanged(object? sender, PropertyChangedEventArgs e) => _settings.Save();
+    private void OnEntryPropertyChanged(object? sender, PropertyChangedEventArgs e) => SaveIfNeeded();
 }

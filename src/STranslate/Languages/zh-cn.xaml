@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">清空全部术语</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">确定要清空全部术语吗？此操作无法撤销。</sys:String>
     <sys:String x:Key="GlossaryUsageHint">仅原文与译文都已填写的条目会被发送，启用术语库的服务每次翻译都会收到完整术语表。</sys:String>
+    <sys:String x:Key="GlossaryImport">导入术语</sys:String>
+    <sys:String x:Key="GlossaryExport">导出术语</sys:String>
+    <sys:String x:Key="GlossaryImportResult">已导入 {0} 条术语，跳过 {1} 条重复项</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">导入术语失败</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">所选文件不是有效的术语库文件。</sys:String>
     <sys:String x:Key="Standalone">独立窗口</sys:String>
     <sys:String x:Key="History">历史</sys:String>
     <sys:String x:Key="Plugins">插件</sys:String>

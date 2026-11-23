@@ -176,7 +176,7 @@ public class Main : LlmTranslatePluginBase
         // 只有 OpenAI 官方接口认 prompt_cache_key，其余服务多传字段会被拒收。
         // 显式断点更进一步，仅 GPT-5.6 及以后支持。
         var provider = PromptCaching.DetectProvider(model);
-        var cacheable = Settings.EnablePromptCaching && PromptCaching.SupportsRequestCacheFields(provider);
+        var cacheable = PromptCaching.SupportsRequestCacheFields(provider);
         var messageList = messages as IReadOnlyList<PromptItem> ?? messages.ToList();
         var stablePrefixCount = cacheable ? PromptCaching.GetStablePrefixCount(messageList) : 0;
         var useExplicitBreakpoint = cacheable &&

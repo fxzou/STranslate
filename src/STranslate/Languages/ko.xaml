@@ -23,6 +23,11 @@
     <sys:String x:Key="GlossaryClearAll">모든 용어 지우기</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">모든 용어를 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.</sys:String>
     <sys:String x:Key="GlossaryUsageHint">원문과 번역을 모두 입력한 항목만 전송되며, 용어집을 사용하는 서비스는 번역할 때마다 전체 용어집을 받습니다.</sys:String>
+    <sys:String x:Key="GlossaryImport">용어 가져오기</sys:String>
+    <sys:String x:Key="GlossaryExport">용어 내보내기</sys:String>
+    <sys:String x:Key="GlossaryImportResult">용어 {0}개를 가져왔습니다(중복 {1}개 건너뜀)</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">용어 가져오기에 실패했습니다</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">선택한 파일이 올바른 용어집 파일이 아닙니다.</sys:String>
     <sys:String x:Key="Standalone">독립 창</sys:String>
     <sys:String x:Key="History">기록</sys:String>
     <sys:String x:Key="Plugins">플러그인</sys:String>

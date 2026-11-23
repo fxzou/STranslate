@@ -30,7 +30,16 @@ public class PluginContext(PluginMetaData metaData, string serviceId, Service? s
 
     public IGlossaryProvider Glossary => Ioc.Default.GetRequiredService<IGlossaryProvider>();
 
-    public bool UseGlossary => service?.Options?.UseGlossary ?? false;
+    public bool UseGlossary
+    {
+        get => service?.Options?.UseGlossary ?? false;
+        set
+        {
+            // 插件设置页与主程序服务菜单共用同一份配置，写入走 Options 的变更通知以便持久化。
+            if (service?.Options is { } options)
+                options.UseGlossary = value;
+        }
+    }
 
     public Window GetPromptEditWindow(ObservableCollection<Prompt> prompts, List<string>? roles = default)
     {

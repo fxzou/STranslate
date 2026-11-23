@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">پاک کردن همه واژه‌ها</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">همه واژه‌ها پاک شوند؟ این کار قابل بازگشت نیست.</sys:String>
     <sys:String x:Key="GlossaryUsageHint">فقط ورودی‌هایی که هر دو بخش آن پر شده باشد ارسال می‌شود و سرویسی که واژه‌نامه را فعال کرده، در هر ترجمه کل واژه‌نامه را دریافت می‌کند.</sys:String>
+    <sys:String x:Key="GlossaryImport">درون‌ریزی واژه‌ها</sys:String>
+    <sys:String x:Key="GlossaryExport">برون‌ریزی واژه‌ها</sys:String>
+    <sys:String x:Key="GlossaryImportResult">{0} واژه درون‌ریزی شد، {1} مورد تکراری نادیده گرفته شد</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">درون‌ریزی واژه‌ها ناموفق بود</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">فایل انتخاب‌شده یک فایل واژه‌نامهٔ معتبر نیست.</sys:String>
     <sys:String x:Key="Standalone">پنجره مستقل</sys:String>
     <sys:String x:Key="History">تاریخچه</sys:String>
     <sys:String x:Key="Plugins">افزونه‌ها</sys:String>

@@ -28,7 +28,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         Temperature = _settings.Temperature;
         SendTemperature = _settings.SendTemperature;
         AdditionalParametersJson = _settings.AdditionalParametersJson;
-        EnablePromptCaching = _settings.EnablePromptCaching;
+        UseGlossary = _context.UseGlossary;
 
         PropertyChanged += OnPropertyChanged;
         Models.CollectionChanged += OnModelsCollectionChanged;
@@ -71,9 +71,10 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             case nameof(AdditionalParametersJson):
                 _settings.AdditionalParametersJson = AdditionalParametersJson;
                 break;
-            case nameof(EnablePromptCaching):
-                _settings.EnablePromptCaching = EnablePromptCaching;
-                break;
+            case nameof(UseGlossary):
+                // 术语库开关属于服务级配置，由主程序持久化。
+                _context.UseGlossary = UseGlossary;
+                return;
             default:
                 return;
         }
@@ -89,7 +90,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial double Temperature { get; set; }
     [ObservableProperty] public partial bool SendTemperature { get; set; }
     [ObservableProperty] public partial string AdditionalParametersJson { get; set; }
-    [ObservableProperty] public partial bool EnablePromptCaching { get; set; }
+    [ObservableProperty] public partial bool UseGlossary { get; set; }
 
     public string FinalUrl => OpenAIProtocol.BuildFinalUrl(Url, ApiMode);
 

@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using iNKORE.UI.WPF.Modern.Controls;
+using Microsoft.Win32;
 using STranslate.Core;
+using STranslate.Helpers;
 using STranslate.Plugin;
+using System.IO;
 using System.Windows;
 
 namespace STranslate.ViewModels.Pages;
@@ -12,8 +15,11 @@ namespace STranslate.ViewModels.Pages;
 /// </summary>
 public partial class GlossaryViewModel : ObservableObject
 {
+    private const string FileFilter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*";
+
     private readonly GlossaryService _glossaryService;
     private readonly Internationalization _i18n;
+    private readonly ISnackbar _snackbar;
 
     [ObservableProperty]
     public partial GlossaryEntry? SelectedEntry { get; set; }
@@ -22,10 +28,11 @@ public partial class GlossaryViewModel : ObservableObject
 
     public IReadOnlyList<GlossaryEntry> Entries => _glossaryService.Entries;
 
-    public GlossaryViewModel(GlossaryService glossaryService, Internationalization i18n)
+    public GlossaryViewModel(GlossaryService glossaryService, Internationalization i18n, ISnackbar snackbar)
     {
         _glossaryService = glossaryService;
         _i18n = i18n;
+        _snackbar = snackbar;
     }
 
     [RelayCommand]
@@ -56,5 +63,68 @@ public partial class GlossaryViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
             _glossaryService.Clear();
+    }
+
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = _i18n.GetTranslation("SaveAs"),
+            Filter = FileFilter,
+            DefaultExt = ".json",
+            FileName = $"stranslate_glossary_{DateTime.Now:yyyyMMddHHmmss}.json",
+            DefaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            AddToRecent = true
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        try
+        {
+            var json = GlossaryFileHelper.Serialize(_glossaryService.Entries);
+            await File.WriteAllTextAsync(dialog.FileName, json, GlossaryFileHelper.Utf8BomEncoding);
+
+            _snackbar.ShowSuccess(_i18n.GetTranslation("ExportSuccess"));
+        }
+        catch (Exception ex)
+        {
+            _snackbar.ShowError($"{_i18n.GetTranslation("ExportFailed")}: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportAsync()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = _i18n.GetTranslation("GlossaryImport"),
+            Filter = FileFilter,
+            CheckFileExists = true,
+            Multiselect = false
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(dialog.FileName);
+            var entries = GlossaryFileHelper.Deserialize(json);
+
+            if (entries == null)
+            {
+                _snackbar.ShowError(_i18n.GetTranslation("GlossaryImportInvalidFile"));
+                return;
+            }
+
+            var added = _glossaryService.Import(entries);
+            _snackbar.ShowSuccess(string.Format(_i18n.GetTranslation("GlossaryImportResult"), added, entries.Count - added));
+        }
+        catch (Exception ex)
+        {
+            _snackbar.ShowError($"{_i18n.GetTranslation("GlossaryImportFailed")}: {ex.Message}");
+        }
     }
 }

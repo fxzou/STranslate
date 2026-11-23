@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">Clear all terms</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">Clear all terms? This cannot be undone.</sys:String>
     <sys:String x:Key="GlossaryUsageHint">Every enabled service receives the full list, and only entries with both fields filled are sent.</sys:String>
+    <sys:String x:Key="GlossaryImport">Import terms</sys:String>
+    <sys:String x:Key="GlossaryExport">Export terms</sys:String>
+    <sys:String x:Key="GlossaryImportResult">Imported {0} terms, skipped {1} duplicates</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">Failed to import terms</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">The selected file is not a valid glossary file.</sys:String>
     <sys:String x:Key="Standalone">Standalone</sys:String>
     <sys:String x:Key="History">History</sys:String>
     <sys:String x:Key="Plugins">Plugins</sys:String>

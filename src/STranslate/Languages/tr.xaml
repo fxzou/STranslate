@@ -25,6 +25,11 @@
     <sys:String x:Key="GlossaryClearAll">Tüm terimleri temizle</sys:String>
     <sys:String x:Key="GlossaryClearAllConfirm">Tüm terimler temizlensin mi? Bu işlem geri alınamaz.</sys:String>
     <sys:String x:Key="GlossaryUsageHint">Yalnızca iki alanı da doldurulmuş girdiler gönderilir; sözlüğü kullanan hizmet her çeviride sözlüğün tamamını alır.</sys:String>
+    <sys:String x:Key="GlossaryImport">Terimleri içe aktar</sys:String>
+    <sys:String x:Key="GlossaryExport">Terimleri dışa aktar</sys:String>
+    <sys:String x:Key="GlossaryImportResult">{0} terim içe aktarıldı, {1} yinelenen atlandı</sys:String>
+    <sys:String x:Key="GlossaryImportFailed">Terimler içe aktarılamadı</sys:String>
+    <sys:String x:Key="GlossaryImportInvalidFile">Seçilen dosya geçerli bir sözlük dosyası değil.</sys:String>
     <sys:String x:Key="Standalone">Bağımsız Pencere</sys:String>
     <sys:String x:Key="History">Geçmiş</sys:String>
     <sys:String x:Key="Plugins">Eklentiler</sys:String>

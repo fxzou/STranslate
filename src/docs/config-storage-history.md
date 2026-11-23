@@ -93,6 +93,7 @@
   - 全局术语库，落盘为 `GlossarySettings.json`，与语言方向无关，所有翻译服务共享同一份术语。
   - `Entries` 是 `ObservableCollection<GlossaryEntry>`，而非 `List`：术语页的增删要直接反映到界面，`GlossaryService` 也要订阅集合变化做持久化。
   - 仅 `Source` 与 `Target` 均非空的条目参与翻译；`GlossaryService.GetEffectiveEntries()` 会过滤空白并 `Trim` 两端后返回副本。
+  - 支持按 `[{"SourceText": "...", "TargetText": "..."}]` 格式导入导出，读写集中在 `STranslate/Helpers/GlossaryFileHelper.cs`：导出走 UTF-8 with BOM、`WriteIndented`；导入容忍 BOM、注释与尾随逗号，属性名不区分大小写。`GlossaryService.Import` 按（原文, 译文）去重后追加，返回实际新增条数。
   - 是否启用由**每个服务实例**的 `TranslationOptions.UseGlossary` 决定，不在此文件中保存。
 - `ProxySettings` 与 `BackupSettings`
   - 网络代理与备份目标配置。
