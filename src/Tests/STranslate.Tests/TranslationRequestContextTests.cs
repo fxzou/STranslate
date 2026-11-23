@@ -62,15 +62,41 @@ public class TranslationRequestContextTests
     public async Task EveryDetectionSettingIsFrozenBeforeBackgroundPreparation()
     {
         var settings = new Settings { LanguageDetector = LanguageDetectorType.Yandex, LocalDetectorRate = 0.42,
-            SourceLangIfAuto = LangEnum.French, FirstLanguage = LangEnum.ChineseSimplified, SecondLanguage = LangEnum.English };
+            SourceLangIfAuto = LangEnum.French, FirstLanguage = LangEnum.ChineseSimplified, SecondLanguage = LangEnum.English,
+            SimpleLanguageMode = true, SimpleLanguageTargetLang = LangEnum.Korean,
+            SameLanguageTargetLang = LangEnum.Japanese };
         var coordinator = new TranslationResultCoordinator(key => key, new(), settings);
         var operation = coordinator.BeginOperation("secret", LangEnum.English, LangEnum.Auto, CancellationToken.None);
         settings.LanguageDetector = LanguageDetectorType.Local;
         settings.LocalDetectorRate = 0.9;
         settings.SourceLangIfAuto = settings.FirstLanguage = settings.SecondLanguage = LangEnum.Japanese;
+        settings.SimpleLanguageMode = false;
+        settings.SimpleLanguageTargetLang = LangEnum.English;
+        settings.SameLanguageTargetLang = LangEnum.Auto;
         await operation.PrepareInputAsync();
         Assert.Equal(new LangDetectOptions(LanguageDetectorType.Yandex, 0.42, LangEnum.French,
-            LangEnum.ChineseSimplified, LangEnum.English), operation.DetectionOptions);
+            LangEnum.ChineseSimplified, LangEnum.English)
+        {
+            SimpleLanguageMode = true,
+            SimpleLanguageTargetLang = LangEnum.Korean,
+            SameLanguageTargetLang = LangEnum.Japanese,
+        }, operation.DetectionOptions);
+    }
+
+    [Fact]
+    public void SimpleLanguageModeSurvivesTheOperationSnapshot()
+    {
+        // 回归：后台操作的语种配置包曾只带 5 个位置参数，
+        // 导致简化语言模式在文本链路里被静默关掉。
+        var settings = new Settings { SimpleLanguageMode = true, SimpleLanguageTargetLang = LangEnum.French };
+        var coordinator = new TranslationResultCoordinator(key => key, new(), settings);
+        var operation = coordinator.BeginOperation("secret", LangEnum.Auto, LangEnum.Auto, CancellationToken.None);
+        var options = Assert.IsType<LangDetectOptions>(operation.DetectionOptions);
+        Assert.True(options.SimpleLanguageMode);
+        Assert.Equal(LangEnum.French, options.SimpleLanguageTargetLang);
+        // 识别为中文时译为配置的目标语种，识别为其它语言时译为简体中文。
+        Assert.Equal(LangEnum.French, options.ResolveTargetLanguage(LangEnum.ChineseSimplified, LangEnum.Auto));
+        Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.English, LangEnum.Auto));
     }
 
     [Fact]

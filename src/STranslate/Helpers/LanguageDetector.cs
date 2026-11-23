@@ -39,6 +39,26 @@ public sealed record LangDetectOptions(
     public LangEnum SimpleLanguageTargetLang { get; init; } = LangEnum.English;
 
     /// <summary>
+    ///     依据指定配置对象构造配置包。
+    ///     与 <see cref="LanguageDetector.CreateGlobalOptions"/> 的区别是不读取依赖注入容器里的全局设置，
+    ///     便于在持有独立配置实例的场景（后台操作快照、单元测试）复用同一套映射。
+    /// </summary>
+    /// <param name="settings">来源配置对象。</param>
+    /// <returns>语种识别配置包。</returns>
+    public static LangDetectOptions FromSettings(Settings settings)
+        => new(
+            settings.LanguageDetector,
+            settings.LocalDetectorRate,
+            settings.SourceLangIfAuto,
+            settings.FirstLanguage,
+            settings.SecondLanguage)
+        {
+            SameLanguageTargetLang = settings.SameLanguageTargetLang,
+            SimpleLanguageMode = settings.SimpleLanguageMode,
+            SimpleLanguageTargetLang = settings.SimpleLanguageTargetLang,
+        };
+
+    /// <summary>
     ///     判断语种是否属于中文，用于简化语言模式区分「中文」与「其它语言」。
     /// </summary>
     private static bool IsChinese(LangEnum language) =>
@@ -180,17 +200,7 @@ public class LanguageDetector
     /// </summary>
     /// <returns>语种识别配置包。</returns>
     internal static LangDetectOptions CreateGlobalOptions()
-        => new(
-            _settings.LanguageDetector,
-            _settings.LocalDetectorRate,
-            _settings.SourceLangIfAuto,
-            _settings.FirstLanguage,
-            _settings.SecondLanguage)
-        {
-            SameLanguageTargetLang = _settings.SameLanguageTargetLang,
-            SimpleLanguageMode = _settings.SimpleLanguageMode,
-            SimpleLanguageTargetLang = _settings.SimpleLanguageTargetLang,
-        };
+        => LangDetectOptions.FromSettings(_settings);
 
     /// <summary>
     ///     识别语种

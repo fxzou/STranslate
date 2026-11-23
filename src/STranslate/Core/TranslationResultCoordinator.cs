@@ -46,9 +46,7 @@ internal sealed class TranslationResultCoordinator
     {
         var operationId = Interlocked.Increment(ref _lastOperationId);
         var snapshot = _settings?.TextPreprocessing?.Clone();
-        var detectionOptions = _settings is null ? null : new LangDetectOptions(
-            _settings.LanguageDetector, _settings.LocalDetectorRate, _settings.SourceLangIfAuto,
-            _settings.FirstLanguage, _settings.SecondLanguage);
+        var detectionOptions = _settings is null ? null : LangDetectOptions.FromSettings(_settings);
         return new TranslationOperation(
             this,
             _getTranslation,

@@ -197,6 +197,35 @@ public class LangDetectOptionsTests
         Assert.Equal(LangEnum.ChineseSimplified, options.ResolveTargetLanguage(LangEnum.Japanese, LangEnum.Auto));
     }
 
+    [Fact]
+    public void FromSettings_Carries_Every_Detection_Setting()
+    {
+        // 回归：曾按 5 个位置参数手工构造配置包，漏掉 init 属性，
+        // 导致简化语言模式与「相同语言目标」被静默关掉。
+        var settings = new Settings
+        {
+            LanguageDetector = LanguageDetectorType.Yandex,
+            LocalDetectorRate = 0.42,
+            SourceLangIfAuto = LangEnum.French,
+            FirstLanguage = LangEnum.Korean,
+            SecondLanguage = LangEnum.Japanese,
+            SimpleLanguageMode = true,
+            SimpleLanguageTargetLang = LangEnum.German,
+            SameLanguageTargetLang = LangEnum.Italian,
+        };
+
+        var options = LangDetectOptions.FromSettings(settings);
+
+        Assert.Equal(LanguageDetectorType.Yandex, options.Detector);
+        Assert.Equal(0.42, options.LocalDetectorRate);
+        Assert.Equal(LangEnum.French, options.SourceLangIfAuto);
+        Assert.Equal(LangEnum.Korean, options.FirstLanguage);
+        Assert.Equal(LangEnum.Japanese, options.SecondLanguage);
+        Assert.True(options.SimpleLanguageMode);
+        Assert.Equal(LangEnum.German, options.SimpleLanguageTargetLang);
+        Assert.Equal(LangEnum.Italian, options.SameLanguageTargetLang);
+    }
+
     private static LangDetectOptions CreateOptions(LangEnum? sameLanguageTarget = null)
         => new(LanguageDetectorType.Local, 0.8, LangEnum.English, LangEnum.ChineseSimplified, LangEnum.English)
         {
