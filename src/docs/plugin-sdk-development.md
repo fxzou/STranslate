@@ -71,9 +71,11 @@
 - 插件通过 `IPluginContext` 的两个成员接入：
   - `IGlossaryProvider Glossary`：`Entries` 为原始条目，`GetEffectiveEntries()` 返回过滤空白并 `Trim` 后的副本，直接用于拼提示词。
   - `bool UseGlossary`：**当前服务实例**是否启用了术语库，取自该服务的 `TranslationOptions.UseGlossary`，由用户在服务右键菜单开关。
-- 正确的注入姿势是「独立 system 消息 + 插在最前面」：`UseGlossary` 为真且 `GetEffectiveEntries()` 非空时，把术语渲染成一条 `role = "system"` 的 `PromptItem` 并 `Insert(0, ...)`。放在最前既能让模型稳定遵循术语，也让它成为跨请求不变的稳定前缀，从而与提示词缓存同时受益。
+- 正确的注入姿势是「**并入开头那条指令消息**，只在没有指令消息时才补一条 system」：`UseGlossary` 为真且 `GetEffectiveEntries()` 非空时，把术语文本拼在 `messages[0]` 的 `Content` 之前（`role` 为 `system` / `developer` 都算指令消息）；若首条不是指令角色，才 `Insert(0, new PromptItem("system", text))`。
+  - **不要**额外插入一条 system 消息。Gemini 的 OpenAI 兼容层只接受一条 system 指令，多条时只保留最后一条，额外那条会被静默丢弃；DeepSeek 要求 system 位于对话开头，多插可能直接返回 `System message must be at the beginning.`。并入首条后术语仍位于最前、仍是跨请求不变的稳定前缀，提示词缓存同样受益。
 - 术语内容必须只由术语本身决定（顺序、分隔符、措辞稳定），否则每次请求的前缀都不同，提示词缓存永远不命中。
 - 只有支持大模型提示词的插件（如 OpenAI、BigModel）才需要处理术语库；传统 REST 翻译插件忽略这两者即可。参考实现：`Plugins/STranslate.Plugin.Translate.OpenAI/GlossaryPrompt.cs`。
+- 自定义服务地址走 `UrlHelper.BuildFinalUrl`。`UrlPathMatchRule.OpenAI` 除了 `/` 与 `/v1`，还识别以 `/openai` 结尾的兼容基址（如 Gemini 的 `/v1beta/openai`），并保留版本段前缀，最终拼出 `/v1beta/openai/chat/completions`。
 
 ### 图片翻译 OCR 插件要求
 - 普通 OCR 插件仍只需要实现 `IOcrPlugin`；想进入图片翻译 OCR 下拉列表时，必须实现 `SupportBoxPoints() => true`。
@@ -122,7 +124,7 @@
   - 腾讯 Transmart 官方服务已停止，插件保留仅用于兼容旧配置。
   - 设置页只展示停用说明，不再提供连通性验证入口。
 - OpenAI 内置翻译：
-  - 术语库：`Context.UseGlossary` 为真时，`GlossaryPrompt.CreateMessage(...)` 生成一条 `system` 消息并 `Insert(0, ...)`，即插在提示词最前面。术语渲染内容只由术语本身决定，保证跨请求稳定。
+  - 术语库：`Context.UseGlossary` 为真时，`GlossaryPrompt.Apply(...)` 把术语文本并入开头那条 `system` / `developer` 消息（首条不是指令角色时才补一条 `system`），不新增 system 消息，理由见「全局术语库」小节。术语渲染内容只由术语本身决定，保证跨请求稳定。
   - 提示词缓存（`Settings.EnablePromptCaching`，默认开启）：只有识别为 OpenAI 模型（`PromptCaching.IsOpenAIModel`）时才附带缓存字段，避免把 `prompt_cache_key` 发给不认识它的兼容服务。
     - `PromptCaching.CreateCacheKey` 对开头连续 `system` / `developer` 消息（稳定前缀）做 SHA256，得到稳定的 `prompt_cache_key`，前缀相同则键相同。
     - `PromptCaching.SupportsExplicitBreakpoint` 仅在 GPT-5.6 及以后返回 true；此时 `OpenAIProtocol.CreateRequest` 会把稳定前缀的最后一条改写成内容块数组并打上 `prompt_cache_breakpoint`，同时发送 `prompt_cache_options.mode = "explicit"`。

@@ -6,7 +6,8 @@ namespace STranslate.Plugin;
 public enum UrlPathMatchRule
 {
     /// <summary>
-    /// OpenAI / Claude 规则: 匹配 "/" 或 "/v1"
+    /// OpenAI / Claude 规则: 匹配 "/"、"/v1" 或以 "/openai" 结尾的兼容基址
+    /// （例如 Gemini 的 "/v1beta/openai"）
     /// </summary>
     OpenAI,
 
@@ -86,7 +87,7 @@ public static class UrlHelper
 
             // 根据规则判断是否需要替换路径
             if (ShouldReplacePath(builder.Path, rule))
-                builder.Path = path;
+                builder.Path = BuildPath(builder.Path, path);
 
             return builder.Uri.ToString();
         }
@@ -103,11 +104,58 @@ public static class UrlHelper
     {
         return rule switch
         {
-            UrlPathMatchRule.OpenAI => path == "/" || path == "/v1",
+            UrlPathMatchRule.OpenAI => path == "/" || path == "/v1" || IsOpenAICompatibleBase(path),
             UrlPathMatchRule.ChatGLM => path == "/" || path == "/api" || path == "/api/paas/v4",
             UrlPathMatchRule.OpenRouter => path == "/" || path == "/api/v1",
             _ => path == "/"
         };
+    }
+
+    /// <summary>
+    /// 判断路径是否为带版本段的 OpenAI 兼容基址，
+    /// 例如 Gemini 的 "/v1beta/openai"、"/v1/openai"。
+    /// </summary>
+    private static bool IsOpenAICompatibleBase(string path)
+    {
+        var trimmed = path.TrimEnd('/');
+        const string suffix = "/openai";
+
+        if (!trimmed.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // 必须像 Gemini 那样在 "/openai" 之前还有版本段，避免把
+        // 用户自建的、恰好以 "/openai" 结尾的完整地址误判为基址。
+        var version = trimmed[..^suffix.Length];
+        return version.Length > 2 &&
+               version[0] == '/' &&
+               (version[1] == 'v' || version[1] == 'V');
+    }
+
+    /// <summary>
+    /// 依据基址计算最终路径
+    /// </summary>
+    /// <remarks>
+    /// 普通基址（"/" 或 "/v1"）直接用默认路径替换；
+    /// 带版本段的 "/openai" 兼容基址（如 "/v1beta/openai"）把版本段放在 "/openai" 之前，
+    /// 因此保留该前缀，只把默认路径里的 "/v1" 一段去掉。
+    /// </remarks>
+    private static string BuildPath(string basePath, string path)
+    {
+        if (!IsOpenAICompatibleBase(basePath))
+            return path;
+
+        var prefix = basePath.TrimEnd('/');
+
+        // 只剥掉 "/v1" 这一段版本前缀，且后面必须紧跟分隔符，
+        // 避免把 "/v1beta/..." 之类的路径误当作版本段。
+        if (path.Length > 3 &&
+            path[..3].Equals("/v1", StringComparison.OrdinalIgnoreCase) &&
+            path[3] == '/')
+        {
+            return prefix + path[3..];
+        }
+
+        return prefix + path;
     }
 
     internal const string DefaultChatCompletionsPath = "/v1/chat/completions";

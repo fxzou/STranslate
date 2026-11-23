@@ -152,13 +152,11 @@ public class Main : LlmTranslatePluginBase
                 .Replace("$content", text);
         }
 
-        // 术语表作为独立的 system 消息插在最前面：
-        // 它属于跨请求不变的稳定前缀，既能让模型稳定遵循术语，也便于命中提示词缓存。
-        if (Context.UseGlossary &&
-            GlossaryPrompt.CreateMessage(Context.Glossary?.GetEffectiveEntries()) is { } glossaryMessage)
-        {
-            messages.Insert(0, glossaryMessage);
-        }
+        // 术语要求并入开头那条指令消息，而不是新增一条 system 消息：
+        // Gemini 的兼容层只接受一条 system，DeepSeek 要求 system 位于开头，
+        // 多插一条会让术语静默失效。并入后仍属稳定前缀，不影响提示词缓存。
+        if (Context.UseGlossary)
+            GlossaryPrompt.Apply(messages, Context.Glossary?.GetEffectiveEntries());
 
         return messages;
     }

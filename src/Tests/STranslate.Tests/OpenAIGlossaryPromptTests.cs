@@ -6,17 +6,17 @@ namespace STranslate.Tests;
 public class OpenAIGlossaryPromptTests
 {
     [Fact]
-    public void NoEntries_ProducesNoMessage()
+    public void NoEntries_ProduceNoText()
     {
-        Assert.Null(GlossaryPrompt.CreateMessage(null));
-        Assert.Null(GlossaryPrompt.CreateMessage([]));
+        Assert.Null(GlossaryPrompt.CreateText(null));
+        Assert.Null(GlossaryPrompt.CreateText([]));
     }
 
     [Fact]
-    public void AllBlankEntries_ProduceNoMessage()
+    public void AllBlankEntries_ProduceNoText()
     {
-        // 术语全为空白时不应该发出一条只有表头的 system 消息。
-        Assert.Null(GlossaryPrompt.CreateMessage(
+        // 术语全为空白时不应该发出一条只有表头的提示。
+        Assert.Null(GlossaryPrompt.CreateText(
         [
             new GlossaryEntry("   ", "接口"),
             new GlossaryEntry("API", "\t")
@@ -24,53 +24,146 @@ public class OpenAIGlossaryPromptTests
     }
 
     [Fact]
-    public void MessageIsSystemRoleAndListsEveryEntry()
+    public void TextListsEveryEntry()
     {
-        var message = GlossaryPrompt.CreateMessage(
+        var text = GlossaryPrompt.CreateText(
         [
             new GlossaryEntry("API", "接口"),
             new GlossaryEntry("token", "令牌")
         ]);
 
-        Assert.NotNull(message);
-        Assert.Equal("system", message.Role);
-        Assert.Contains("API => 接口", message.Content);
-        Assert.Contains("token => 令牌", message.Content);
+        Assert.NotNull(text);
+        Assert.Contains("API => 接口", text);
+        Assert.Contains("token => 令牌", text);
     }
 
     [Fact]
     public void BlankEntriesAreSkippedAndValuesTrimmed()
     {
-        var message = GlossaryPrompt.CreateMessage(
+        var text = GlossaryPrompt.CreateText(
         [
             new GlossaryEntry("  ", "接口"),
             new GlossaryEntry("API", "   "),
             new GlossaryEntry(" token ", " 令牌 ")
         ]);
 
-        Assert.NotNull(message);
-        Assert.DoesNotContain("接口", message.Content);
-        Assert.Contains("token => 令牌", message.Content);
+        Assert.NotNull(text);
+        Assert.DoesNotContain("接口", text);
+        Assert.Contains("token => 令牌", text);
     }
 
     [Fact]
-    public void ContentIsStableForSameEntries()
+    public void TextIsStableForSameEntries()
     {
         // 术语提示属于稳定前缀，同样的术语必须渲染出完全相同的文本，否则缓存永远不命中。
         List<GlossaryEntry> entries = [new("API", "接口"), new("token", "令牌")];
 
-        var first = GlossaryPrompt.CreateMessage(entries);
-        var second = GlossaryPrompt.CreateMessage(entries);
+        var first = GlossaryPrompt.CreateText(entries);
+        var second = GlossaryPrompt.CreateText(entries);
 
-        Assert.Equal(first!.Content, second!.Content);
+        Assert.Equal(first, second);
     }
 
     [Fact]
-    public void ContentChangesWhenEntriesChange()
+    public void TextChangesWhenEntriesChange()
     {
-        var first = GlossaryPrompt.CreateMessage([new GlossaryEntry("API", "接口")]);
-        var second = GlossaryPrompt.CreateMessage([new GlossaryEntry("API", "应用程序接口")]);
+        var first = GlossaryPrompt.CreateText([new GlossaryEntry("API", "接口")]);
+        var second = GlossaryPrompt.CreateText([new GlossaryEntry("API", "应用程序接口")]);
 
-        Assert.NotEqual(first!.Content, second!.Content);
+        Assert.NotEqual(first, second);
+    }
+
+    [Fact]
+    public void Apply_MergesIntoExistingSystemMessage()
+    {
+        // Gemini 只认一条 system、DeepSeek 要求 system 在开头，
+        // 因此术语必须并入首条指令消息，而不是新增一条。
+        List<PromptItem> messages =
+        [
+            new("system", "You are a translation engine."),
+            new("user", "translate")
+        ];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        Assert.Equal(2, messages.Count);
+        Assert.Equal("system", messages[0].Role);
+        Assert.Contains("API => 接口", messages[0].Content);
+        Assert.Contains("You are a translation engine.", messages[0].Content);
+        Assert.Equal("user", messages[1].Role);
+    }
+
+    [Fact]
+    public void Apply_PutsGlossaryBeforeOriginalInstruction()
+    {
+        List<PromptItem> messages = [new("system", "persona")];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        var content = messages[0].Content;
+        Assert.True(
+            content.IndexOf("API => 接口", StringComparison.Ordinal) <
+            content.IndexOf("persona", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Apply_MergesIntoDeveloperMessage()
+    {
+        List<PromptItem> messages = [new("Developer", "persona")];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        Assert.Single(messages);
+        Assert.Contains("API => 接口", messages[0].Content);
+        Assert.Contains("persona", messages[0].Content);
+    }
+
+    [Fact]
+    public void Apply_InsertsSystemMessageWhenFirstMessageIsNotInstruction()
+    {
+        // 自定义提示词可能不带 system，此时仍要保证术语位于最前。
+        List<PromptItem> messages = [new("user", "translate")];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        Assert.Equal(2, messages.Count);
+        Assert.Equal("system", messages[0].Role);
+        Assert.Contains("API => 接口", messages[0].Content);
+        Assert.Equal("user", messages[1].Role);
+    }
+
+    [Fact]
+    public void Apply_UsesGlossaryAsContentWhenFirstMessageIsEmpty()
+    {
+        List<PromptItem> messages = [new("system", "   ")];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        Assert.Single(messages);
+        Assert.StartsWith("The following glossary", messages[0].Content);
+    }
+
+    [Fact]
+    public void Apply_DoesNothingWithoutEntries()
+    {
+        List<PromptItem> messages = [new("system", "persona"), new("user", "translate")];
+
+        GlossaryPrompt.Apply(messages, null);
+        GlossaryPrompt.Apply(messages, []);
+
+        Assert.Equal(2, messages.Count);
+        Assert.Equal("persona", messages[0].Content);
+    }
+
+    [Fact]
+    public void Apply_KeepsSingleSystemMessageForCompatibleEndpoints()
+    {
+        // 关键回归点：无论是否启用术语库，system 消息数量都必须保持为 1。
+        List<PromptItem> messages = [new("system", "persona"), new("user", "translate")];
+
+        GlossaryPrompt.Apply(messages, [new GlossaryEntry("API", "接口")]);
+
+        Assert.Single(messages.Where(message =>
+            string.Equals(message.Role, "system", StringComparison.OrdinalIgnoreCase)));
     }
 }
