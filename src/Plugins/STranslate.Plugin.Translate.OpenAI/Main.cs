@@ -137,7 +137,7 @@ public class Main : LlmTranslatePluginBase
         await ExecuteStreamingAsync(messages, null, cancellationToken);
     }
 
-    private List<PromptItem> BuildMessages(string source, string target, string text)
+    internal List<PromptItem> BuildMessages(string source, string target, string text)
     {
         var messages = (Prompts.FirstOrDefault(x => x.IsEnabled) ?? throw new Exception("请先完善Prompt配置"))
             .Clone()
@@ -152,6 +152,14 @@ public class Main : LlmTranslatePluginBase
                 .Replace("$content", text);
         }
 
+        // 术语表作为独立的 system 消息插在最前面：
+        // 它属于跨请求不变的稳定前缀，既能让模型稳定遵循术语，也便于命中提示词缓存。
+        if (Context.UseGlossary &&
+            GlossaryPrompt.CreateMessage(Context.Glossary?.GetEffectiveEntries()) is { } glossaryMessage)
+        {
+            messages.Insert(0, glossaryMessage);
+        }
+
         return messages;
     }
 
@@ -164,13 +172,29 @@ public class Main : LlmTranslatePluginBase
         var url = OpenAIProtocol.BuildFinalUrl(Settings.Url, apiMode);
         var model = string.IsNullOrWhiteSpace(Settings.Model) ? "gpt-4o" : Settings.Model.Trim();
         var temperature = Math.Clamp(Settings.Temperature, 0, 2);
+
+        // 让每次请求都能复用同一段稳定前缀的缓存：
+        // 显式断点只在支持它的模型上发送，其余情况仅依靠隐式缓存与稳定的 prompt_cache_key。
+        // 地址可能指向任意兼容服务，因此只有识别为 OpenAI 模型时才附带缓存字段。
+        var cacheable = Settings.EnablePromptCaching && PromptCaching.IsOpenAIModel(model);
+        var messageList = messages as IReadOnlyList<PromptItem> ?? messages.ToList();
+        var stablePrefixCount = cacheable ? PromptCaching.GetStablePrefixCount(messageList) : 0;
+        var useExplicitBreakpoint = cacheable &&
+                                    stablePrefixCount > 0 &&
+                                    PromptCaching.SupportsExplicitBreakpoint(model);
+        var promptCacheKey = cacheable
+            ? PromptCaching.CreateCacheKey(messageList, stablePrefixCount)
+            : null;
+
         var content = OpenAIProtocol.CreateRequest(
             apiMode,
             model,
             messages,
             temperature,
             Settings.AdditionalParametersJson,
-            Settings.SendTemperature);
+            Settings.SendTemperature,
+            promptCacheKey,
+            useExplicitBreakpoint);
 
         var option = new Options
         {

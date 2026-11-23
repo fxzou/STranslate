@@ -89,6 +89,11 @@
   - `TranSvcDatas/OcrSvcDatas/TtsSvcDatas/VocabularySvcDatas`。
   - `ReplaceSvcID/ImageTranslateSvcID/ImageTranslateOcrSvcID`。
   - 欢迎向导会复用服务页的服务创建逻辑和插件配置 UI，以 5 页流程配置语言、翻译/OCR 服务、图片翻译/替换翻译专用服务和关键快捷键。
+- `GlossarySettings`
+  - 全局术语库，落盘为 `GlossarySettings.json`，与语言方向无关，所有翻译服务共享同一份术语。
+  - `Entries` 是 `ObservableCollection<GlossaryEntry>`，而非 `List`：术语页的增删要直接反映到界面，`GlossaryService` 也要订阅集合变化做持久化。
+  - 仅 `Source` 与 `Target` 均非空的条目参与翻译；`GlossaryService.GetEffectiveEntries()` 会过滤空白并 `Trim` 两端后返回副本。
+  - 是否启用由**每个服务实例**的 `TranslationOptions.UseGlossary` 决定，不在此文件中保存。
 - `ProxySettings` 与 `BackupSettings`
   - 网络代理与备份目标配置。
 - `HistoryModel` / `HistoryData`
@@ -110,6 +115,8 @@
 - `STranslate/Converters/HistoryServiceDisplayNameConverter.cs`
 - `STranslate/Core/ProxySettings.cs`
 - `STranslate/Core/BackupSettings.cs`
+- `STranslate/Core/GlossarySettings.cs`
+- `STranslate/Core/GlossaryService.cs`
 
 ## 常见改动任务
 - 新增设置项：
@@ -117,6 +124,7 @@
   2. 需要即时行为时补充 `HandlePropertyChanged` 分支。
   3. 在对应 UI 页面绑定并验证序列化兼容。
   4. 对数值型设置补充归一化逻辑时，确保保存分支覆盖该属性。
+- 术语库相关改动：术语存放于 `GlossarySettings`，开关存放在 `ServiceSettings` 的 `TranslationOptions.UseGlossary`。新增服务级布尔选项时需同步三处：`ServiceManager.CreateService` 的加载回写、`ServiceManager.CreateDuplicateServiceData` 的复制、`BaseService.OnServicePropertyChanged` 的持久化分支，缺任一处会导致重启或复制服务后开关丢失。
 - 调整首次向导时，不要新增“是否完成向导”字段；启动条件以三类配置文件启动前是否存在为准，并保持自动向导先于主窗口显示。
 - 调整存储可靠性：优先改 `StorageBase`，避免在业务层重复实现备份恢复。
 - 修改便携策略：改 `DataLocation`，并验证升级流程中的 `TmpConfigDirectory` 回迁逻辑。

@@ -124,6 +124,11 @@
                                 <ui:BitmapIcon ShowAsMonochrome="False" UriSource="/Resources/vocabulary.png" />
                             </ui:NavigationViewItem.Icon>
                         </ui:NavigationViewItem>
+                        <ui:NavigationViewItem Content="{DynamicResource Glossary}" Tag="GlossaryPage">
+                            <ui:NavigationViewItem.Icon>
+                                <ui:BitmapIcon ShowAsMonochrome="False" UriSource="/Resources/translate.png" />
+                            </ui:NavigationViewItem.Icon>
+                        </ui:NavigationViewItem>
                     </ui:NavigationViewItem.MenuItems>
                 </ui:NavigationViewItem>
 

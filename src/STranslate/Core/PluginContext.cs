@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace STranslate.Core;
 
-public class PluginContext(PluginMetaData metaData, string serviceId) : IPluginContext
+public class PluginContext(PluginMetaData metaData, string serviceId, Service? service = null) : IPluginContext
 {
     private IPluginSavable Savable { get => field; set => field = value; } = null!;
 
@@ -27,6 +27,10 @@ public class PluginContext(PluginMetaData metaData, string serviceId) : IPluginC
     public INotification Notification => Ioc.Default.GetRequiredService<INotification>();
 
     public ImageQuality ImageQuality => Ioc.Default.GetRequiredService<Settings>().ImageQuality;
+
+    public IGlossaryProvider Glossary => Ioc.Default.GetRequiredService<IGlossaryProvider>();
+
+    public bool UseGlossary => service?.Options?.UseGlossary ?? false;
 
     public Window GetPromptEditWindow(ObservableCollection<Prompt> prompts, List<string>? roles = default)
     {

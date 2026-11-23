@@ -154,6 +154,17 @@
             </ikw:SimpleStackPanel>
         </ui:SettingsCard>
 
+        <!--  提示词缓存  -->
+        <ui:SettingsCard
+            Description="{DynamicResource STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description}"
+            Header="{DynamicResource STranslate_Plugin_Translate_OpenAI_EnablePromptCaching}">
+            <ui:SettingsCard.HeaderIcon>
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.ArrowClockwise_20_Regular}" />
+            </ui:SettingsCard.HeaderIcon>
+            <ui:ToggleSwitch IsOn="{Binding EnablePromptCaching, Mode=TwoWay}"
+                             AutomationProperties.Name="{DynamicResource STranslate_Plugin_Translate_OpenAI_EnablePromptCaching}" />
+        </ui:SettingsCard>
+
         <!--  附加请求参数  -->
         <ui:SettingsCard
             Description="{DynamicResource STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description}"

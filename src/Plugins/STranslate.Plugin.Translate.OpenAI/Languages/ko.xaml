@@ -10,4 +10,6 @@
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters">추가 요청 매개 변수</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description">요청 루트에 병합할 JSON 개체를 입력하세요. 플러그인이 생성하는 기본 필드는 재정의할 수 없습니다.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_SendTemperature">온도 매개변수 전송</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching">프롬프트 캐시</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description">안정적인 prompt_cache_key 를 보내고 재사용 가능한 system 접두사를 캐시 브레이크포인트로 표시하여 반복 요청이 캐시된 접두사를 재사용하도록 합니다. 호환 서비스가 이 필드를 허용하지 않으면 끄십시오.</sys:String>
 </ResourceDictionary>

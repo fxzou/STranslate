@@ -50,6 +50,17 @@ public interface IPluginContext : IDisposable
     ImageQuality ImageQuality { get; }
 
     /// <summary>
+    /// 全局术语库。插件可据此在提示词中注入术语要求。
+    /// </summary>
+    IGlossaryProvider Glossary { get; }
+
+    /// <summary>
+    /// 当前服务实例是否启用了术语库。
+    /// 由主程序的服务配置决定，插件应据此决定是否注入术语。
+    /// </summary>
+    bool UseGlossary { get; }
+
+    /// <summary>
     /// 获取Prompt编辑窗口
     /// </summary>
     /// <param name="prompts"></param>

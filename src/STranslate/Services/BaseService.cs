@@ -312,6 +312,13 @@ public abstract partial class BaseService : ObservableObject, IDisposable
                     _serviceSettings.Save();
                 }
                 break;
+            case nameof(TranslationOptions.UseGlossary):
+                if (svcSetting.Options != null && svc.Options != null)
+                {
+                    svcSetting.Options.UseGlossary = svc.Options.UseGlossary;
+                    _serviceSettings.Save();
+                }
+                break;
             case nameof(TranslationOptions.ExecMode):
                 if (svcSetting.Options != null && svc.Options != null)
                 {

@@ -10,4 +10,6 @@
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters">Дополнительные параметры запроса</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description">Укажите объект JSON, который будет добавлен в корень запроса. Встроенные поля, которые формирует плагин, переопределить нельзя.</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_SendTemperature">Отправлять параметр temperature</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching">Кэш промпта</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description">Отправлять стабильный prompt_cache_key и помечать повторно используемый префикс system как точку кэширования, чтобы повторные запросы могли использовать кэшированный префикс. Отключите, если совместимый сторонний сервис не принимает эти поля.</sys:String>
 </ResourceDictionary>

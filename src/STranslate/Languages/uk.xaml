@@ -18,6 +18,13 @@
     <sys:String x:Key="Ocr">Розпізнавання тексту</sys:String>
     <sys:String x:Key="Tts">Озвучення</sys:String>
     <sys:String x:Key="Vocabulary">Словник</sys:String>
+    <sys:String x:Key="Glossary">Глосарій</sys:String>
+    <sys:String x:Key="GlossaryDescription">Терміни, задані тут, спільні для всіх служб перекладу й застосовуються лише в службах із увімкненим перемикачем глосарія.</sys:String>
+    <sys:String x:Key="GlossarySource">Початковий термін</sys:String>
+    <sys:String x:Key="GlossaryTarget">Переклад терміна</sys:String>
+    <sys:String x:Key="GlossaryClearAll">Очистити всі терміни</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">Очистити всі терміни? Цю дію не можна скасувати.</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">Передаються лише записи із заповненими обома полями; служба з увімкненим глосарієм отримує весь глосарій під час кожного перекладу.</sys:String>
     <sys:String x:Key="Standalone">Окреме вікно</sys:String>
     <sys:String x:Key="History">Історія</sys:String>
     <sys:String x:Key="Plugins">Плагіни</sys:String>
@@ -533,6 +540,7 @@
 
     <sys:String x:Key="ExecuteTranslation">Виконати переклад</sys:String>
     <sys:String x:Key="AutoBackTranslation">Автоматичний зворотний переклад</sys:String>
+    <sys:String x:Key="UseGlossary">Використовувати глосарій</sys:String>
     <sys:String x:Key="ConfigureService">Налаштувати сервіс</sys:String>
     <sys:String x:Key="CloseService">Вимкнути сервіс</sys:String>
     <sys:String x:Key="Paraphrase">Тлумачення</sys:String>

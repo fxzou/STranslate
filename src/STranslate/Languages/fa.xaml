@@ -18,6 +18,13 @@
     <sys:String x:Key="Ocr">تشخیص متن (OCR)</sys:String>
     <sys:String x:Key="Tts">تبدیل متن به گفتار (TTS)</sys:String>
     <sys:String x:Key="Vocabulary">جعبه واژگان</sys:String>
+    <sys:String x:Key="Glossary">واژه‌نامه</sys:String>
+    <sys:String x:Key="GlossaryDescription">واژه‌های این بخش میان همه سرویس‌های ترجمه مشترک است و فقط در سرویس‌هایی اعمال می‌شود که کلید واژه‌نامه فعال باشد.</sys:String>
+    <sys:String x:Key="GlossarySource">واژه مبدأ</sys:String>
+    <sys:String x:Key="GlossaryTarget">واژه مقصد</sys:String>
+    <sys:String x:Key="GlossaryClearAll">پاک کردن همه واژه‌ها</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">همه واژه‌ها پاک شوند؟ این کار قابل بازگشت نیست.</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">فقط ورودی‌هایی که هر دو بخش آن پر شده باشد ارسال می‌شود و سرویسی که واژه‌نامه را فعال کرده، در هر ترجمه کل واژه‌نامه را دریافت می‌کند.</sys:String>
     <sys:String x:Key="Standalone">پنجره مستقل</sys:String>
     <sys:String x:Key="History">تاریخچه</sys:String>
     <sys:String x:Key="Plugins">افزونه‌ها</sys:String>
@@ -543,6 +550,7 @@ localhost;127.*;10.*;192.168.*;*.example.com</sys:String>
 
     <sys:String x:Key="ExecuteTranslation">اجرای ترجمه</sys:String>
     <sys:String x:Key="AutoBackTranslation">ترجمه بازگشتی خودکار</sys:String>
+    <sys:String x:Key="UseGlossary">استفاده از واژه‌نامه</sys:String>
     <sys:String x:Key="ConfigureService">پیکربندی سرویس</sys:String>
     <sys:String x:Key="CloseService">بستن سرویس</sys:String>
     <sys:String x:Key="Paraphrase">تعریف / معانی</sys:String>

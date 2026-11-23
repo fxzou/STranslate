@@ -18,6 +18,13 @@
     <sys:String x:Key="Ocr">文本识别</sys:String>
     <sys:String x:Key="Tts">语音合成</sys:String>
     <sys:String x:Key="Vocabulary">生词本</sys:String>
+    <sys:String x:Key="Glossary">术语库</sys:String>
+    <sys:String x:Key="GlossaryDescription">此处维护的术语由所有翻译服务共享，仅在启用了术语库开关的服务中生效。</sys:String>
+    <sys:String x:Key="GlossarySource">原文术语</sys:String>
+    <sys:String x:Key="GlossaryTarget">译文术语</sys:String>
+    <sys:String x:Key="GlossaryClearAll">清空全部术语</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">确定要清空全部术语吗？此操作无法撤销。</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">仅原文与译文都已填写的条目会被发送，启用术语库的服务每次翻译都会收到完整术语表。</sys:String>
     <sys:String x:Key="Standalone">独立窗口</sys:String>
     <sys:String x:Key="History">历史</sys:String>
     <sys:String x:Key="Plugins">插件</sys:String>
@@ -555,6 +562,7 @@
 
     <sys:String x:Key="ExecuteTranslation">执行翻译</sys:String>
     <sys:String x:Key="AutoBackTranslation">自动回译</sys:String>
+    <sys:String x:Key="UseGlossary">使用术语库</sys:String>
     <sys:String x:Key="ConfigureService">配置服务</sys:String>
     <sys:String x:Key="CloseService">关闭服务</sys:String>
     <sys:String x:Key="Paraphrase">释义</sys:String>

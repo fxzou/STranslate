@@ -18,6 +18,13 @@
     <sys:String x:Key="Ocr">Ocr</sys:String>
     <sys:String x:Key="Tts">Tts</sys:String>
     <sys:String x:Key="Vocabulary">Vocabulary</sys:String>
+    <sys:String x:Key="Glossary">Glossary</sys:String>
+    <sys:String x:Key="GlossaryDescription">Terms listed here are shared by all translation services and take effect only in services with the glossary switch enabled.</sys:String>
+    <sys:String x:Key="GlossarySource">Source term</sys:String>
+    <sys:String x:Key="GlossaryTarget">Target term</sys:String>
+    <sys:String x:Key="GlossaryClearAll">Clear all terms</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">Clear all terms? This cannot be undone.</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">Every enabled service receives the full list, and only entries with both fields filled are sent.</sys:String>
     <sys:String x:Key="Standalone">Standalone</sys:String>
     <sys:String x:Key="History">History</sys:String>
     <sys:String x:Key="Plugins">Plugins</sys:String>
@@ -555,6 +562,7 @@
 
     <sys:String x:Key="ExecuteTranslation">Execute Translation</sys:String>
     <sys:String x:Key="AutoBackTranslation">Auto Trans Back</sys:String>
+    <sys:String x:Key="UseGlossary">Use Glossary</sys:String>
     <sys:String x:Key="ConfigureService">Configure Service</sys:String>
     <sys:String x:Key="CloseService">Close Service</sys:String>
     <sys:String x:Key="Paraphrase">Definition</sys:String>

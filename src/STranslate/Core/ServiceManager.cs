@@ -257,7 +257,8 @@ public class ServiceManager
             : new TranslationOptions
             {
                 ExecMode = source.Options.ExecMode,
-                AutoBackTranslation = source.Options.AutoBackTranslation
+                AutoBackTranslation = source.Options.AutoBackTranslation,
+                UseGlossary = source.Options.UseGlossary
             }
     };
 
@@ -357,9 +358,10 @@ public class ServiceManager
             service.Options ??= new TranslationOptions();
             service.Options.ExecMode = settings?.Options?.ExecMode ?? ExecutionMode.Automatic;
             service.Options.AutoBackTranslation = settings?.Options?.AutoBackTranslation ?? false;
+            service.Options.UseGlossary = settings?.Options?.UseGlossary ?? false;
         }
         var plugin = metaDataClone.CreatePluginService();
-        var context = new PluginContext(metaDataClone, serviceID);
+        var context = new PluginContext(metaDataClone, serviceID, service);
         service.Plugin = plugin;
         service.Context = context;
 

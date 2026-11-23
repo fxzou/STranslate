@@ -16,6 +16,13 @@
     <sys:String x:Key="Ocr">텍스트 인식</sys:String>
     <sys:String x:Key="Tts">음성 합성 (TTS)</sys:String>
     <sys:String x:Key="Vocabulary">단어장</sys:String>
+    <sys:String x:Key="Glossary">용어집</sys:String>
+    <sys:String x:Key="GlossaryDescription">여기에서 관리하는 용어는 모든 번역 서비스가 공유하며, 용어집 스위치를 켠 서비스에서만 적용됩니다.</sys:String>
+    <sys:String x:Key="GlossarySource">원문 용어</sys:String>
+    <sys:String x:Key="GlossaryTarget">번역 용어</sys:String>
+    <sys:String x:Key="GlossaryClearAll">모든 용어 지우기</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">모든 용어를 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">원문과 번역을 모두 입력한 항목만 전송되며, 용어집을 사용하는 서비스는 번역할 때마다 전체 용어집을 받습니다.</sys:String>
     <sys:String x:Key="Standalone">독립 창</sys:String>
     <sys:String x:Key="History">기록</sys:String>
     <sys:String x:Key="Plugins">플러그인</sys:String>
@@ -521,6 +528,7 @@
 
     <sys:String x:Key="ExecuteTranslation">번역 실행</sys:String>
     <sys:String x:Key="AutoBackTranslation">자동 역번역</sys:String>
+    <sys:String x:Key="UseGlossary">용어집 사용</sys:String>
     <sys:String x:Key="ConfigureService">서비스 구성</sys:String>
     <sys:String x:Key="CloseService">서비스 닫기</sys:String>
     <sys:String x:Key="Paraphrase">의역</sys:String>

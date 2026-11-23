@@ -66,6 +66,15 @@
   - 图片翻译专用链路、`Auto` / `Provider` / `Smart` 分段策略和结构化分段影响见 [flow-image-translation.md](flow-image-translation.md)。
 - `LangEnum`：语言枚举，当前包含 `Uzbek`、`Uyghur`；新增语言时需要同步主程序语言检测、内置插件语言映射、本地化文本与双向文本布局规则。
 
+### 全局术语库
+- 主程序维护一份**全局术语**，与语言方向无关，所有翻译服务共享。术语存于 `GlossarySettings.json`，管理入口是设置页的术语库页面。
+- 插件通过 `IPluginContext` 的两个成员接入：
+  - `IGlossaryProvider Glossary`：`Entries` 为原始条目，`GetEffectiveEntries()` 返回过滤空白并 `Trim` 后的副本，直接用于拼提示词。
+  - `bool UseGlossary`：**当前服务实例**是否启用了术语库，取自该服务的 `TranslationOptions.UseGlossary`，由用户在服务右键菜单开关。
+- 正确的注入姿势是「独立 system 消息 + 插在最前面」：`UseGlossary` 为真且 `GetEffectiveEntries()` 非空时，把术语渲染成一条 `role = "system"` 的 `PromptItem` 并 `Insert(0, ...)`。放在最前既能让模型稳定遵循术语，也让它成为跨请求不变的稳定前缀，从而与提示词缓存同时受益。
+- 术语内容必须只由术语本身决定（顺序、分隔符、措辞稳定），否则每次请求的前缀都不同，提示词缓存永远不命中。
+- 只有支持大模型提示词的插件（如 OpenAI、BigModel）才需要处理术语库；传统 REST 翻译插件忽略这两者即可。参考实现：`Plugins/STranslate.Plugin.Translate.OpenAI/GlossaryPrompt.cs`。
+
 ### 图片翻译 OCR 插件要求
 - 普通 OCR 插件仍只需要实现 `IOcrPlugin`；想进入图片翻译 OCR 下拉列表时，必须实现 `SupportBoxPoints() => true`。
 - 如果返回结构化分段：
@@ -112,6 +121,13 @@
 - Transmart 内置翻译：
   - 腾讯 Transmart 官方服务已停止，插件保留仅用于兼容旧配置。
   - 设置页只展示停用说明，不再提供连通性验证入口。
+- OpenAI 内置翻译：
+  - 术语库：`Context.UseGlossary` 为真时，`GlossaryPrompt.CreateMessage(...)` 生成一条 `system` 消息并 `Insert(0, ...)`，即插在提示词最前面。术语渲染内容只由术语本身决定，保证跨请求稳定。
+  - 提示词缓存（`Settings.EnablePromptCaching`，默认开启）：只有识别为 OpenAI 模型（`PromptCaching.IsOpenAIModel`）时才附带缓存字段，避免把 `prompt_cache_key` 发给不认识它的兼容服务。
+    - `PromptCaching.CreateCacheKey` 对开头连续 `system` / `developer` 消息（稳定前缀）做 SHA256，得到稳定的 `prompt_cache_key`，前缀相同则键相同。
+    - `PromptCaching.SupportsExplicitBreakpoint` 仅在 GPT-5.6 及以后返回 true；此时 `OpenAIProtocol.CreateRequest` 会把稳定前缀的最后一条改写成内容块数组并打上 `prompt_cache_breakpoint`，同时发送 `prompt_cache_options.mode = "explicit"`。
+    - 显式模式下不发送断点就发 `prompt_cache_options` 是非法组合，因此 `CreateRequest` 内部用 `applyBreakpoint = useExplicitCacheBreakpoint && 稳定前缀非空` 兜底，前缀为空时整体退回普通请求。
+    - 待翻译原文永远在稳定前缀之外，否则前缀每次变化，缓存永不命中。
 - 金山词霸内置词典：
   - 当前解析网页 `__NEXT_DATA__`，需同时处理 Next.js HTML 与直接 JSON 两类响应。
   - 无结果或跳转默认页时应返回 `DictionaryResultType.NoResult`，避免错误词条污染历史。
@@ -119,6 +135,7 @@
 ## 关键文件
 - `STranslate.Plugin/IPlugin.cs`
 - `STranslate.Plugin/IPluginContext.cs`
+- `STranslate.Plugin/IGlossaryProvider.cs`
 - `STranslate.Plugin/IHttpService.cs`
 - `STranslate.Plugin/IAudioPlayer.cs`
 - `STranslate.Plugin/AudioData.cs`
@@ -142,6 +159,8 @@
   4. 在 `Init` 中加载配置并在设置 UI 中可编辑。
   5. 如果属于官方内置或预装插件，将 `plugin.json` 中的 `PluginID` 添加到 `STranslate/Core/Constant.cs` 的 `PrePluginIDs`。
 - 增加插件能力参数：先扩展插件 `Settings` 模型，再在 `GetSettingUI()` 对应 VM 中读写并调用 `SaveSettingStorage`。
+- 接入全局术语库：LLM 插件读 `Context.UseGlossary` 判断当前服务是否启用，再用 `Context.Glossary.GetEffectiveEntries()` 取术语，渲染成一条 `system` 消息插在 `messages[0]`；渲染结果必须只由术语内容决定，否则会破坏提示词缓存的前缀稳定性。
+- 接入提示词缓存：只在识别为 OpenAI 模型时附加快照字段（`prompt_cache_key`），显式断点仅在支持它的模型上发送，且断点位置固定在稳定前缀末尾。
 - 处理长任务取消：所有 `TranslateAsync` / `RecognizeAsync` / `SaveAsync` 应尊重 `CancellationToken`。
 - 兼容升级：保持 `PluginID` 稳定，升级仅提升 `Version`，避免被识别为新插件。
 - 接入大模型或 SSE 服务：优先使用 `StreamPostAsyncEnumerable()`，按行解析服务返回，避免在插件里重复实现 `HttpClient` 流读取。

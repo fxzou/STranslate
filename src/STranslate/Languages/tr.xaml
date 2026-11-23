@@ -18,6 +18,13 @@
     <sys:String x:Key="Ocr">OCR</sys:String>
     <sys:String x:Key="Tts">TTS</sys:String>
     <sys:String x:Key="Vocabulary">Sözlük</sys:String>
+    <sys:String x:Key="Glossary">Terim Sözlüğü</sys:String>
+    <sys:String x:Key="GlossaryDescription">Burada yönetilen terimler tüm çeviri hizmetlerinde ortaktır ve yalnızca terim sözlüğü anahtarı açık olan hizmetlerde uygulanır.</sys:String>
+    <sys:String x:Key="GlossarySource">Kaynak terim</sys:String>
+    <sys:String x:Key="GlossaryTarget">Hedef terim</sys:String>
+    <sys:String x:Key="GlossaryClearAll">Tüm terimleri temizle</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">Tüm terimler temizlensin mi? Bu işlem geri alınamaz.</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">Yalnızca iki alanı da doldurulmuş girdiler gönderilir; sözlüğü kullanan hizmet her çeviride sözlüğün tamamını alır.</sys:String>
     <sys:String x:Key="Standalone">Bağımsız Pencere</sys:String>
     <sys:String x:Key="History">Geçmiş</sys:String>
     <sys:String x:Key="Plugins">Eklentiler</sys:String>
@@ -534,6 +541,7 @@
 
     <sys:String x:Key="ExecuteTranslation">Çeviriyi Yürüt</sys:String>
     <sys:String x:Key="AutoBackTranslation">Otomatik Geri Çeviri</sys:String>
+    <sys:String x:Key="UseGlossary">Sözlüğü kullan</sys:String>
     <sys:String x:Key="ConfigureService">Hizmeti Yapılandır</sys:String>
     <sys:String x:Key="CloseService">Hizmeti Kapat</sys:String>
     <sys:String x:Key="Paraphrase">Tanım</sys:String>

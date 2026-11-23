@@ -28,6 +28,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         Temperature = _settings.Temperature;
         SendTemperature = _settings.SendTemperature;
         AdditionalParametersJson = _settings.AdditionalParametersJson;
+        EnablePromptCaching = _settings.EnablePromptCaching;
 
         PropertyChanged += OnPropertyChanged;
         Models.CollectionChanged += OnModelsCollectionChanged;
@@ -70,6 +71,9 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
             case nameof(AdditionalParametersJson):
                 _settings.AdditionalParametersJson = AdditionalParametersJson;
                 break;
+            case nameof(EnablePromptCaching):
+                _settings.EnablePromptCaching = EnablePromptCaching;
+                break;
             default:
                 return;
         }
@@ -85,6 +89,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial double Temperature { get; set; }
     [ObservableProperty] public partial bool SendTemperature { get; set; }
     [ObservableProperty] public partial string AdditionalParametersJson { get; set; }
+    [ObservableProperty] public partial bool EnablePromptCaching { get; set; }
 
     public string FinalUrl => OpenAIProtocol.BuildFinalUrl(Url, ApiMode);
 

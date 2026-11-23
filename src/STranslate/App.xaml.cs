@@ -29,6 +29,7 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
     private static Settings? _settings;
     private readonly HotkeySettings? _hotkeySettings;
     private readonly ServiceSettings? _svcSettings;
+    private readonly GlossarySettings? _glossarySettings;
     private readonly bool _shouldShowWelcomeSetup;
 
     private ILogger<App>? _logger;
@@ -72,6 +73,10 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
             _svcSettings = svcStorage.Load();
             _svcSettings.SetStorage(svcStorage);
 
+            var glossaryStorage = new AppStorage<GlossarySettings>();
+            _glossarySettings = glossaryStorage.Load();
+            _glossarySettings.SetStorage(glossaryStorage);
+
             _shouldShowWelcomeSetup = isSettingsConfigMissing && isHotkeyConfigMissing && isServiceConfigMissing;
         }
         catch (Exception e)
@@ -98,6 +103,9 @@ public partial class App : ISingleInstanceApp, INavigation, IDisposable
                     services.AddSingleton(_settings.NonNull());
                     services.AddSingleton(_hotkeySettings.NonNull());
                     services.AddSingleton(_svcSettings.NonNull());
+                    services.AddSingleton(_glossarySettings.NonNull());
+                    services.AddSingleton<GlossaryService>();
+                    services.AddSingleton<IGlossaryProvider>(sp => sp.GetRequiredService<GlossaryService>());
                     services.AddSingleton<MouseSelectionIconWindow>();
 
                     // 注册核心服务

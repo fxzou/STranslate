@@ -10,4 +10,6 @@
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters">追加リクエストパラメーター</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_AdditionalParameters_Description">リクエストのルートにマージする JSON オブジェクトを入力します。プラグインが生成する組み込みフィールドは上書きできません。</sys:String>
     <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_SendTemperature">温度パラメーターを送信</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching">プロンプトキャッシュ</sys:String>
+    <sys:String x:Key="STranslate_Plugin_Translate_OpenAI_EnablePromptCaching_Description">安定した prompt_cache_key を送信し、再利用可能な system プレフィックスをキャッシュブレークポイントとして指定することで、繰り返しのリクエストがキャッシュ済みプレフィックスを再利用できます。互換サービスがこれらのフィールドを受け付けない場合は無効にしてください。</sys:String>
 </ResourceDictionary>

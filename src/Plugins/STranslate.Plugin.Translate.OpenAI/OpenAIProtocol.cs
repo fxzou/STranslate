@@ -20,30 +20,108 @@ internal static class OpenAIProtocol
         IReadOnlyCollection<PromptItem> messages,
         double temperature,
         string? additionalParametersJson = null,
-        bool sendTemperature = false)
+        bool sendTemperature = false,
+        string? promptCacheKey = null,
+        bool useExplicitCacheBreakpoint = false)
     {
+        var list = messages as IReadOnlyList<PromptItem> ?? messages.ToList();
+
+        // 只有确实存在稳定前缀时才值得发显式断点；否则一律退回普通请求，
+        // 既不发 prompt_cache_options，也避免让兼容服务收到看不懂的字段。
+        var applyBreakpoint = useExplicitCacheBreakpoint &&
+                              PromptCaching.GetStablePrefixCount(list) > 0;
+
+        var payload = applyBreakpoint
+            ? BuildPayloadWithCacheBreakpoint(apiMode, list)
+            : JsonSerializer.SerializeToNode(list);
+
         JsonObject request = apiMode switch
         {
             OpenAIApiMode.Responses => new JsonObject
             {
                 ["model"] = model,
-                ["input"] = JsonSerializer.SerializeToNode(messages),
+                ["input"] = payload,
                 ["stream"] = true,
                 ["store"] = false
             },
             _ => new JsonObject
             {
                 ["model"] = model,
-                ["messages"] = JsonSerializer.SerializeToNode(messages),
+                ["messages"] = payload,
                 ["stream"] = true
             }
         };
 
+        if (applyBreakpoint)
+        {
+            // 显式模式下由我们决定缓存边界，隐式断点会被关闭，
+            // 从而避免把每次都变化的原文写进缓存。
+            request["prompt_cache_options"] = new JsonObject
+            {
+                ["mode"] = "explicit"
+            };
+        }
+
         if (sendTemperature)
             request["temperature"] = temperature;
 
+        // 稳定的缓存路由键：前缀相同的请求落到同一台缓存机器，从而提高命中率。
+        if (!string.IsNullOrWhiteSpace(promptCacheKey))
+            request["prompt_cache_key"] = promptCacheKey;
+
         AppendAdditionalParameters(request, additionalParametersJson);
         return request;
+    }
+
+    /// <summary>
+    /// 把稳定前缀的最后一条消息内容改写为内容块数组，并在块上打显式缓存断点。
+    /// 「稳定前缀」指开头连续的 system / developer 消息，它们是跨请求不变的部分。
+    /// </summary>
+    /// <remarks>
+    /// 两种 API 的文本块类型名不同：Chat Completions 用 <c>text</c>，
+    /// Responses 用 <c>input_text</c>。
+    /// </remarks>
+    private static JsonArray? BuildPayloadWithCacheBreakpoint(
+        OpenAIApiMode apiMode,
+        IReadOnlyCollection<PromptItem> messages)
+    {
+        var list = messages as IReadOnlyList<PromptItem> ?? messages.ToList();
+        var stablePrefixCount = PromptCaching.GetStablePrefixCount(list);
+        if (stablePrefixCount == 0)
+            return JsonSerializer.SerializeToNode(list);
+
+        var textBlockType = apiMode == OpenAIApiMode.Responses ? "input_text" : "text";
+        var breakpointIndex = stablePrefixCount - 1;
+        var nodes = new JsonArray();
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var item = list[i];
+            if (i != breakpointIndex)
+            {
+                nodes.Add(JsonSerializer.SerializeToNode(item));
+                continue;
+            }
+
+            nodes.Add(new JsonObject
+            {
+                ["role"] = item.Role,
+                ["content"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["type"] = textBlockType,
+                        ["text"] = item.Content,
+                        ["prompt_cache_breakpoint"] = new JsonObject
+                        {
+                            ["mode"] = "explicit"
+                        }
+                    }
+                }
+            });
+        }
+
+        return nodes;
     }
 
     private static void AppendAdditionalParameters(JsonObject request, string? additionalParametersJson)

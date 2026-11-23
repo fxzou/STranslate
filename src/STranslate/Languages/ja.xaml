@@ -16,6 +16,13 @@
     <sys:String x:Key="Ocr">文字認識</sys:String>
     <sys:String x:Key="Tts">音声合成</sys:String>
     <sys:String x:Key="Vocabulary">単語帳</sys:String>
+    <sys:String x:Key="Glossary">用語集</sys:String>
+    <sys:String x:Key="GlossaryDescription">ここで管理する用語はすべての翻訳サービスで共有され、用語集スイッチが有効なサービスでのみ反映されます。</sys:String>
+    <sys:String x:Key="GlossarySource">原語の用語</sys:String>
+    <sys:String x:Key="GlossaryTarget">訳語</sys:String>
+    <sys:String x:Key="GlossaryClearAll">すべての用語を削除</sys:String>
+    <sys:String x:Key="GlossaryClearAllConfirm">すべての用語を消去しますか？この操作は元に戻せません。</sys:String>
+    <sys:String x:Key="GlossaryUsageHint">原文と訳語の両方が入力された項目だけが送信され、用語集を有効にしたサービスは翻訳のたびに用語集全体を受け取ります。</sys:String>
     <sys:String x:Key="Standalone">独立ウィンドウ</sys:String>
     <sys:String x:Key="History">履歴</sys:String>
     <sys:String x:Key="Plugins">プラグイン</sys:String>
@@ -521,6 +528,7 @@
 
     <sys:String x:Key="ExecuteTranslation">翻訳を実行</sys:String>
     <sys:String x:Key="AutoBackTranslation">自動再翻訳</sys:String>
+    <sys:String x:Key="UseGlossary">用語集を使用</sys:String>
     <sys:String x:Key="ConfigureService">サービス設定</sys:String>
     <sys:String x:Key="CloseService">サービスを閉じる</sys:String>
     <sys:String x:Key="Paraphrase">言い換え</sys:String>

@@ -147,6 +147,11 @@ public partial class TranslationOptions : ObservableObject
     [JsonIgnore]
     public partial bool TemporaryDisplay { get; set; } = false;
     [ObservableProperty] public partial bool AutoBackTranslation { get; set; } = false;
+    /// <summary>
+    /// 是否在翻译时把全局术语库注入提示词，要求模型遵循术语。
+    /// 仅对支持术语库的插件有效。
+    /// </summary>
+    [ObservableProperty] public partial bool UseGlossary { get; set; } = false;
 }
 
 /// <summary>

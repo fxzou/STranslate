@@ -15,6 +15,13 @@ public class Settings
     public double Temperature { get; set; } = 0.7;
     public bool SendTemperature { get; set; } = false;
     public string AdditionalParametersJson { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 是否启用提示词缓存优化：发送稳定的 prompt_cache_key，
+    /// 并在支持显式断点的模型上把跨请求不变的 system 前缀标记为缓存边界。
+    /// </summary>
+    public bool EnablePromptCaching { get; set; } = true;
+
     public int TopP { get; set; } = 1;
     public int N { get; set; } = 1;
     public bool Stream { get; set; } = true;
